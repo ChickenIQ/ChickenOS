@@ -4,7 +4,7 @@ name: Build disk images
 on:
   workflow_dispatch:
     inputs:
-      upload-to-s3:
+      upload-to-b2:
         description: "Upload to B2"
         required: false
         default: false
@@ -89,7 +89,7 @@ jobs:
           additional-args: --use-librepo=True
 
       - name: Upload disk images and Checksum to Job Artifacts
-        if: inputs.upload-to-s3 != true && github.event_name != 'pull_request'
+        if: inputs.upload-to-b2 != true && github.event_name != 'pull_request'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           path: ${{ steps.build.outputs.output-directory }}
