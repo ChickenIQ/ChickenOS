@@ -1,0 +1,63 @@
+---
+name: Build ISO
+
+on:
+  workflow_dispatch:
+  
+env:
+  IMAGE_NAME: ${{ github.event.repository.name }}
+  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
+  DEFAULT_TAG: "latest"
+  BIB_IMAGE: "quay.io/centos-bootc/bootc-image-builder:latest"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ISO
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+
+    steps:
+      - name: Prepare environment
+        run: |
+          USER_UID=$(id -u)
+          USER_GID=$(id -g)
+          # Lowercase the image uri
+          echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
+          echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
+          echo "USER_UID=${USER_UID}" >> ${GITHUB_ENV}
+          echo "USER_GID=${USER_GID}" >> ${GITHUB_ENV}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build ISO
+        id: build
+        uses: osbuild/bootc-image-builder-action@main
+        with:
+          builder-image: ${{ env.BIB_IMAGE }}
+          config-file: ./disk_config/iso.toml
+          image: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
+          chown: ${{ env.USER_UID }}:${{ env.USER_GID }}
+          types: anaconda-iso
+          additional-args: --use-librepo=True
+      
+      - name: Upload to B2
+        shell: bash
+        env:
+          RCLONE_CONFIG_B2_TYPE: b2
+          RCLONE_CONFIG_B2_ACCOUNT: ${{ secrets.B2_ACCOUNT }}
+          RCLONE_CONFIG_B2_KEY: ${{ secrets.B2_KEY }}
+          SOURCE_DIR: ${{ steps.build.outputs.output-directory }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rclone
+          rclone copy $SOURCE_DIR B2:${{ secrets.B2_BUCKET }}
