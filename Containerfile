@@ -1,6 +1,5 @@
 FROM scratch AS ctx
 COPY build_files /
-
 FROM quay.io/fedora/fedora-kinoite:42
 
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
