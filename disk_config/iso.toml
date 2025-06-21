@@ -2,5 +2,6 @@
 contents = """
 %post --erroronfail
 bootc switch --mutate-in-place --transport registry ghcr.io/chickeniq/chickenos:latest
+systemctl disable flatpak-add-fedora-repos.service
 %end
 """
