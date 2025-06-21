@@ -5,11 +5,9 @@ on:
   workflow_dispatch:
   
 env:
+  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
   IMAGE_NAME: ${{ github.event.repository.name }}
-  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
   DEFAULT_TAG: "latest"
-  BIB_IMAGE: "quay.io/centos-bootc/bootc-image-builder:latest"
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
@@ -18,8 +16,6 @@ jobs:
   build:
     name: Build ISO
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
     permissions:
       contents: read
       packages: read
@@ -41,15 +37,13 @@ jobs:
 
       - name: Build ISO
         id: build
-        uses: osbuild/bootc-image-builder-action@v0.0.2
-        # uses: osbuild/bootc-image-builder-action@main
+        uses: osbuild/bootc-image-builder-action@main
         with:
-          # builder-image: ${{ env.BIB_IMAGE }}
-          config-file: ./disk_config/iso.toml
-          image: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
-          chown: ${{ env.USER_UID }}:${{ env.USER_GID }}
           types: anaconda-iso
-          # additional-args: --use-librepo=True
+          config-file: ./disk_config/iso.toml
+          additional-args: --use-librepo=True
+          chown: ${{ env.USER_UID }}:${{ env.USER_GID }}
+          image: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
       
       - name: Upload to B2
         shell: bash
