@@ -41,7 +41,6 @@ jobs:
         with:
           types: anaconda-iso
           config-file: ./disk_config/iso.toml
-          additional-args: --use-librepo=True
           chown: ${{ env.USER_UID }}:${{ env.USER_GID }}
           image: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
       
