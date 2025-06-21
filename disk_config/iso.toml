@@ -1,6 +1,6 @@
 [customizations.installer.kickstart]
 contents = """
-%post
+%post --erroronfail
 bootc switch --mutate-in-place --transport registry ghcr.io/chickeniq/chickenos:latest
 %end
 """
