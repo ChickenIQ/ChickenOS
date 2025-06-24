@@ -34,7 +34,8 @@ jobs:
           SECUREBOOT_KEY: ${{ secrets.SECUREBOOT_KEY }}
         with:
           image: ${{ env.IMAGE_NAME }}
-          containerfiles: ./Containerfile.${{ inputs.variant }}
+          containerfiles: ./Containerfile
+          build-args: VARIANT=${{ inputs.variant }}
           extra-args: --secret=id=secureboot,env=SECUREBOOT_KEY
 
       - name: Login to GitHub Container Registry

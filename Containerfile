@@ -4,9 +4,8 @@ COPY build_files /
 FROM quay.io/fedora/fedora-kinoite:42
 COPY system_files /
 
-ARG VARIANT="${VARIANT:-main}"
-
 COPY SecureBoot.der /etc/pki/ChickenOS.der
+ARG VARIANT="${VARIANT:-main}"
 
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=tmpfs,target=/etc/pki/akmods \
