@@ -1,0 +1,11 @@
+[kwin]
+Overview=Meta+Tab,Meta+W,Toggle Overview
+Window Maximize=Meta+Up,Meta+PgUp,Maximize Window
+Window Minimize=Meta+Down,Meta+PgDown,Minimize Window
+Walk Through Windows=Alt+Tab,Meta+Tab\tAlt+Tab,Walk Through Windows
+Window Quick Tile Top=Meta+PgUp,Meta+Up,Quick Tile Window to the Top
+Window Quick Tile Bottom=Meta+PgDown,Meta+Down,Quick Tile Window to the Bottom
+
+[services][org.kde.spectacle.desktop]
+_launch=Meta+Ctrl+Shift+S
+RectangularRegionScreenShot=Print\tMeta+Shift+S

@@ -1,0 +1,67 @@
+name: builder
+
+on:
+  workflow_call:
+    inputs:
+      variant:
+        default: main
+        required: true
+        type: string
+
+env:
+  IMAGE_NAME: "${{ github.event.repository.name }}-${{ inputs.variant }}"
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  IMAGE_DESC: "ChickenIQ's Custom Image"
+  IMAGE_TAG: "latest"
+
+jobs:
+  build:
+    name: Build and push image
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Prepare environment
+        run: |
+          echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
+          echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Image
+        id: build_image
+        uses: redhat-actions/buildah-build@v2
+        env:
+          SECUREBOOT_KEY: ${{ secrets.SECUREBOOT_KEY }}
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          containerfiles: ./Containerfile.${{ inputs.variant }}
+          extra-args: --secret=id=secureboot,env=SECUREBOOT_KEY
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push To GHCR
+        uses: redhat-actions/push-to-registry@v2
+        id: push
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.9.0
+
+      - name: Sign container image
+        run: cosign sign -y --key env://COSIGN_KEY ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        env:
+          COSIGN_EXPERIMENTAL: false
+          TAGS: ${{ steps.push.outputs.digest }}
+          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}

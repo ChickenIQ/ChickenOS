@@ -1,0 +1,35 @@
+name: build
+
+on:
+  schedule:
+    - cron: "05 10 * * *"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**/README.md"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    uses: ./.github/workflows/builder.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        variant:
+          - main
+          - nvidia
+    with:
+      variant: ${{ matrix.variant }}

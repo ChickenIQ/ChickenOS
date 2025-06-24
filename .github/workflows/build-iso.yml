@@ -1,0 +1,26 @@
+name: build-iso
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    uses: ./.github/workflows/builder-iso.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: true
+      matrix:
+        variant:
+          - main
+          - nvidia
+    with:
+      variant: ${{ matrix.variant }}
