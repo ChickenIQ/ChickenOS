@@ -16,4 +16,4 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
         do ./$script || exit 1; \
     done
    
-RUN bootc container lint  --fatal-warnings
+RUN bootc container lint --fatal-warnings
