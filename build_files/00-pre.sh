@@ -14,3 +14,5 @@ dnf5 -y copr enable bieszczaders/kernel-cachyos-addons
 dnf5 -y copr enable bieszczaders/kernel-cachyos
 dnf5 -y copr enable atim/starship
 
+# Rename Release
+sed -i -E -e '/^VERSION=/ s/\([^)]*\)/(ChickenOS)/' -e '/^PRETTY_NAME=/ s/\([^)]*\)/(ChickenOS)/' /usr/lib/os-release
