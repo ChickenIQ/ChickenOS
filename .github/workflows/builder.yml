@@ -19,6 +19,11 @@ jobs:
     name: Build and push image
     runs-on: ubuntu-24.04
     steps:
+      - name: Maximize build space
+        uses: ublue-os/remove-unwanted-software@v9
+        with:
+          remove-swapfile: true
+
       - name: Prepare environment
         run: |
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
