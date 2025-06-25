@@ -3,7 +3,7 @@ set -ouex pipefail
 
 # Install Kernel
 dnf5 -y install kernel-cachyos kernel-cachyos-devel-matched 
-dnf5 -y remove --no-autoremove kernel-{core,modules,modules-core,modules-extra}
+dnf5 -y remove kernel-{core,modules,modules-core,modules-extra}
 setsebool -P domain_kernel_load_modules on
 
 # Sign Kernel
