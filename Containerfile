@@ -1,7 +1,7 @@
 FROM scratch AS ctx
 COPY build_files /
 
-FROM quay.io/fedora/fedora-kinoite:42
+FROM quay.io/fedora/fedora-bootc:42
 COPY system_files /
 
 COPY SecureBoot.der /etc/pki/ChickenOS.der
