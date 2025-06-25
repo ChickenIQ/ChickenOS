@@ -2,22 +2,27 @@
 set -ouex pipefail
 
 # Install KDE
-dnf5 --exclude \
-  plasma-welcome \
-  kdebugsettings \
-  kinfocenter \
-  khelpcenter \
-  kcharselect \
-  kde-connect \
-  kjournald \
-  toolbox \
-  firefox \
-  kwrite \
-  kfind \
-  krfb \
-  -y install \
-  plasma-firewall \
-  @kde-desktop 
+export excluded_pkgs=(
+  plasma-welcome
+  kdebugsettings
+  kinfocenter
+  khelpcenter
+  kcharselect
+  kde-connect
+  kjournald
+  toolbox
+  firefox
+  kwrite
+  kfind
+  krfb
+)
+
+export extra_pkgs=(
+  plasma-firewall 
+  kate
+)
+
+dnf5 -x $(IFS=,; echo "${excluded_pkgs[*]}") -y install $(echo "${extra_pkgs[*]}") @kde-desktop
 
 # Sysusers
 cat >/usr/lib/sysusers.d/nm-openvpn.conf <<'EOF'

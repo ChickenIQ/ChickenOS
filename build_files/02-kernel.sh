@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ouex pipefail
 
-# Install Kernel
+# Swap Kernel
 dnf5 -y install kernel-cachyos kernel-cachyos-devel-matched 
 dnf5 -y remove kernel-{core,modules,modules-core,modules-extra}
 setsebool -P domain_kernel_load_modules on

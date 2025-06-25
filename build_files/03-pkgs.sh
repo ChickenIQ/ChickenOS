@@ -9,7 +9,6 @@ dnf5 -y install \
   fastfetch \
   starship \
   nvtop \
-  kate \
   btop \
   fish \
   vim 
