@@ -63,7 +63,7 @@ dnf5 -y install \
   sudo \
   tzdata \
   rpm-ostree nss-altfiles \
-  fwupd \
+  fwupd 
 
 
 
