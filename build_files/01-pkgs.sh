@@ -38,6 +38,35 @@ set -ouex pipefail
 #   fish \
 #   vim 
 
+
+# bootc-minimal-blus test
+dnf5 -y install \
+  attr \
+  bash-completion \
+  hostname \
+  iproute \
+  jq \
+  less \
+  vim-minimal \
+  podman skopeo \
+  crun criu criu-libs \
+  cryptsetup \
+  lvm2 \
+  tar \
+  zram-generator \
+  iptables-nft \
+  NetworkManager \
+  openssh-clients \
+  openssh-server \
+  linux-firmware \
+  polkit \
+  sudo \
+  tzdata \
+  rpm-ostree nss-altfiles \
+  fwupd \
+
+
+
 dnf5 -y install \
   ananicy-cpp \
   scx-scheds \

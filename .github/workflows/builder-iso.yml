@@ -35,6 +35,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Change ISO Variant
+        run: sed -i 's/chickenos-main/chickenos-${{ inputs.variant }}/g' ./iso.toml
+
       - name: Build
         id: build
         uses: osbuild/bootc-image-builder-action@main

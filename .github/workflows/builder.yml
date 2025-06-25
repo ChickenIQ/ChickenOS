@@ -24,6 +24,9 @@ jobs:
         with:
           remove-swapfile: true
 
+      - name: Mount BTRFS for podman storage
+        uses: ublue-os/container-storage-action@main
+
       - name: Prepare environment
         run: |
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
