@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ouex pipefail
-# [ "$VARIANT" != "nvidia" ] && exit 0
+[ "$VARIANT" != "nvidia" ] && exit 0
 
 
 # Install Driver
