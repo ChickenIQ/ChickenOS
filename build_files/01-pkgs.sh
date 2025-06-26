@@ -20,18 +20,22 @@ pkgs_remove=(
   firefox
   kwrite
   kfind
-  krf
+  krfb
 )
 
 
 pkgs_install=(
   plasma-firewall
+  wireguard-tools
   ananicy-cpp
   scx-scheds
   distrobox
   fastfetch
   starship
+  thefuck
+  steam
   nvtop
+  tldr
   kate
   btop
   fish

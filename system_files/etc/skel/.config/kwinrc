@@ -1,2 +1,5 @@
 [Plugins]
 shakecursorEnabled=false
+
+[Wayland]
+EnablePrimarySelection=false

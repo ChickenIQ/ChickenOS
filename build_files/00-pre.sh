@@ -9,6 +9,9 @@ install -Dm644 /etc/pki/ChickenOS.der /etc/pki/akmods/certs/public_key.der
 
 
 # Setup Repos
+dnf5 -y install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dnf5 -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm 
+dnf5 -y config-manager setopt fedora-cisco-openh264.enabled=1
 dnf5 -y copr enable bieszczaders/kernel-cachyos-addons
 dnf5 -y copr enable bieszczaders/kernel-cachyos
 dnf5 -y copr enable atim/starship
