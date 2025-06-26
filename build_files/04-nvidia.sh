@@ -18,6 +18,6 @@ EOF
 
 # Sysusers
 cat >/usr/lib/sysusers.d/akmods.conf <<'EOF'
-u nm-openvpn 967:966 "User is used by akmods to build akmod packages" /var/cache/akmods/ /sbin/nologin
-g nm-akmods 966
+u akmods 967:966 "User is used by akmods to build akmod packages" /var/cache/akmods/ /sbin/nologin
+g akmods 966
 EOF
