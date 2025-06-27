@@ -8,5 +8,6 @@ if status is-interactive
     bind \e\[1\;5H beginning-of-line
     bind \b backward-kill-path-component
 
+    thefuck --alias | source
     starship init fish | source
 end

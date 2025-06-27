@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Proton Runner
+Exec=/var/home/emi/Desktop/proton-run.sh %f
+MimeType=application/x-mswinurl;application/x-msi;application/x-ms-shortcut;application/x-ms-dos-executable;application/x-bat;
+Icon=wine
+NoDisplay=true
+StartupNotify=true
