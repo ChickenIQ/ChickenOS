@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=Proton Runner
-Exec=proton-run %f
+Name=Proton Runner (Steam)
+Exec=proton-run-steam %f
 MimeType=application/x-mswinurl;application/x-msi;application/x-ms-shortcut;application/x-ms-dos-executable;application/x-bat;
-Icon=wine
+Icon=steam
 NoDisplay=true
 StartupNotify=true

@@ -1,0 +1,24 @@
+#!/bin/sh
+set -ouex pipefail
+
+if [ -d "/home/$USER/.local/share/Steam" ]; then
+    STEAMDIR="/home/$USER/.local/share/Steam"
+elif [ -d "/home/$USER/.var/app/com.valvesoftware.Steam/.local/share/Steam" ]; then
+    STEAMDIR="/home/$USER/.var/app/com.valvesoftware.Steam/.local/share/Steam"
+else
+    zenity --error --title="Steam Directory Not Found" --text="Please run steam before proceeding!" && exit 1
+fi
+
+export TARGET="$WINEPREFIX/drive_c/Program Files (x86)/Steam"
+mkdir -p "$TARGET"
+
+ln -sf "$STEAMDIR/legacycompat/SteamService.exe" "$TARGET/steam.exe"
+ln -sf "$STEAMDIR/legacycompat/GameOverlayRenderer64.dll" "$TARGET"
+ln -sf "$STEAMDIR/legacycompat/steamclient64.dll" "$TARGET"
+ln -sf "$STEAMDIR/legacycompat/steamclient.dll" "$TARGET"
+ln -sf "$STEAMDIR/legacycompat/Steam.dll" "$TARGET"
+
+export LD_PRELOAD="/home/$USER/.local/share/Steam/ubuntu12_64/gameoverlayrenderer.so"
+export GAMEID="${GAMEID:-umu-480}"
+
+proton-run "$@"
