@@ -9,7 +9,6 @@ else
     zenity --error --title="Steam Directory Not Found" --text="Please run steam before proceeding!" && exit 1
 fi
 
-
 # Workaround until the zenity bug is fixed
 UMU_DIR=/home/$USER/.local/share/umu/steamrt3
 if [ ! -d "$UMU_DIR" ]; then
@@ -24,15 +23,13 @@ if [ ! -d "$UMU_DIR" ]; then
     rm -rf $TMP_DIR
 fi
 
-
-[ -z "$WINEDLLOVERRIDES" ] && export WINEDLLOVERRIDES="OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b"
-[ -z "$PROTONPATH" ] && export PROTONPATH="/usr/share/steam/compatibilitytools.d/Proton-System"
-[ -z "$WINEPREFIX" ] && export WINEPREFIX="/home/$USER/.local/share/umu/prefix"
-
+export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b}"
+export PROTONPATH="${PROTONPATH:-/usr/share/steam/compatibilitytools.d/Proton-System}"
+export WINEPREFIX="${WINEPREFIX:-/home/$USER/.local/share/umu/prefix}"
+export PROTON_VERB="${PROTON_VERB:-runinprefix}"
 
 export TARGET="$WINEPREFIX/drive_c/Program Files (x86)/Steam"
 mkdir -p "$TARGET"
-
 
 ln -sf "$STEAMDIR/legacycompat/SteamService.exe" "$TARGET/steam.exe"
 ln -sf "$STEAMDIR/legacycompat/GameOverlayRenderer64.dll" "$TARGET"
@@ -40,5 +37,5 @@ ln -sf "$STEAMDIR/legacycompat/steamclient64.dll" "$TARGET"
 ln -sf "$STEAMDIR/legacycompat/steamclient.dll" "$TARGET"
 ln -sf "$STEAMDIR/legacycompat/Steam.dll" "$TARGET"
 
-
-LD_PRELOAD="$STEAMDIR/ubuntu12_64/gameoverlayrenderer.so" PROTON_VERB="runinprefix" umu-run "$@"
+export LD_PRELOAD="$STEAMDIR/ubuntu12_64/gameoverlayrenderer.so" 
+umu-run "$@"
