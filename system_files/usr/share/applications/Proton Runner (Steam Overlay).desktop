@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Proton Runner (Steam Overlay)
-Exec=proton-run-steam %f
-MimeType=application/x-mswinurl;application/x-msi;application/x-ms-shortcut;application/x-ms-dos-executable;application/x-bat;
-Icon=steam
-NoDisplay=true
-StartupNotify=true
