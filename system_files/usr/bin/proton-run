@@ -38,4 +38,6 @@ ln -sf "$STEAMDIR/legacycompat/steamclient.dll" "$TARGET"
 ln -sf "$STEAMDIR/legacycompat/Steam.dll" "$TARGET"
 
 export LD_PRELOAD="$STEAMDIR/ubuntu12_64/gameoverlayrenderer.so" 
+export GAMEID="umu-480"
+
 umu-run "$@"
