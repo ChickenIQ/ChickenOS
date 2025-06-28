@@ -26,7 +26,6 @@ fi
 export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b}"
 export PROTONPATH="${PROTONPATH:-/usr/share/steam/compatibilitytools.d/Proton-System}"
 export WINEPREFIX="${WINEPREFIX:-/home/$USER/.local/share/umu/prefix}"
-export PROTON_VERB="${PROTON_VERB:-runinprefix}"
 
 export TARGET="$WINEPREFIX/drive_c/Program Files (x86)/Steam"
 mkdir -p "$TARGET"
@@ -37,6 +36,7 @@ ln -sf "$STEAMDIR/legacycompat/steamclient64.dll" "$TARGET"
 ln -sf "$STEAMDIR/legacycompat/steamclient.dll" "$TARGET"
 ln -sf "$STEAMDIR/legacycompat/Steam.dll" "$TARGET"
 
+[ "$1" != "winetricks" ] && export PROTON_VERB="${PROTON_VERB:-runinprefix}"
 export LD_PRELOAD="$STEAMDIR/ubuntu12_64/gameoverlayrenderer.so" 
 export GAMEID="umu-480"
 
