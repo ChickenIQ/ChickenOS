@@ -3,9 +3,11 @@ set -ouex pipefail
 
 
 # Install Keys
-findmnt -n -t tmpfs /etc/pki/akmods > /dev/null || { echo "/etc/pki/akmods is NOT mounted as tmpfs"; exit 1; }
-install -Dm644 /run/secrets/secureboot /etc/pki/akmods/private/private_key.priv
-install -Dm644 /etc/pki/ChickenOS.der /etc/pki/akmods/certs/public_key.der
+if [ -f /run/secrets/secureboot ]; then
+  findmnt -n -t tmpfs /etc/pki/akmods > /dev/null || { echo "/etc/pki/akmods is NOT mounted as tmpfs"; exit 1; }
+  install -Dm644 /run/secrets/secureboot /etc/pki/akmods/private/private_key.priv
+  install -Dm644 /etc/pki/ChickenOS.der /etc/pki/akmods/certs/public_key.der
+fi 
 
 
 # Setup Repos
