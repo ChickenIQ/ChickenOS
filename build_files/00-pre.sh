@@ -11,14 +11,41 @@ fi
 
 
 # Setup Repos
-
 dnf5 -y install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dnf5 -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm 
 dnf5 -y copr enable gloriouseggroll/nobara-42 && dnf5 -y copr disable gloriouseggroll/nobara-42
 dnf5 -y copr enable bieszczaders/kernel-cachyos-addons
 dnf5 -y copr enable bieszczaders/kernel-cachyos-lto
+dnf5 -y copr enable alternateved/keyd
 dnf5 -y copr enable atim/starship
+dnf5 -y copr enable petersen/nix
 dnf5 -y copr enable ilyaz/LACT
+
+
+# Install Nix
+mkdir -p /nix /var/nix/
+dnf5 -y install nix
+
+cat > /etc/systemd/system/nix.mount <<'EOF'
+[Unit]
+Description=Mount `/var/nix` on `/nix`
+PropagatesStopTo=nix-daemon.service
+ConditionPathIsDirectory=/nix
+DefaultDependencies=no
+
+[Mount]
+What=/var/nix
+Where=/nix
+Type=none
+DirectoryMode=0755
+Options=bind
+
+[Install]
+RequiredBy=nix-daemon.service
+RequiredBy=nix-daemon.socket
+EOF
+
+systemctl enable nix-daemon nix.mount
 
 
 # Setup Flatpak
