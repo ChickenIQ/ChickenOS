@@ -40,14 +40,7 @@ jobs:
         uses: docker/metadata-action@v5
         id: metadata
         with:
-          sep-tags: " "
-          sep-annotations: " "
-          tags: |
-            type=raw,value=${{ env.IMAGE_TAG }}
-            type=raw,value=${{ env.IMAGE_TAG }}.{{date 'YYYYMMDD'}}
-            type=raw,value={{date 'YYYYMMDD'}}
-            type=sha,enable=${{ github.event_name == 'pull_request' }}
-            type=ref,event=pr
+          tags: ${{ env.IMAGE_TAG }}
           labels: |
             org.opencontainers.image.documentation=https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}/refs/heads/main/README.md
             org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}/blob/main/Containerfile
@@ -71,9 +64,9 @@ jobs:
         env:
           SECUREBOOT_KEY: ${{ secrets.SECUREBOOT_KEY }}
         with:
+          tags: ${{ env.IMAGE_TAG }}
           image: ${{ env.IMAGE_NAME }}
           containerfiles: ./Containerfile
-          tags: ${{ steps.metadata.outputs.tags }}
           build-args: VARIANT=${{ inputs.variant }}
           labels: ${{ steps.metadata.outputs.labels }}
           extra-args: --secret=id=secureboot,env=SECUREBOOT_KEY
@@ -92,11 +85,11 @@ jobs:
           REGISTRY_USER: ${{ github.actor }}
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tags: ${{ env.IMAGE_TAG }}
           image: ${{ env.IMAGE_NAME }}
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASSWORD }}
-          tags: ${{ steps.metadata.outputs.tags }}
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.9.0
