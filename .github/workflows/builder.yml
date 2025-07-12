@@ -9,10 +9,12 @@ on:
         type: string
 
 env:
-  IMAGE_NAME: "${{ github.event.repository.name }}-${{ inputs.variant }}"
+  IMAGE_LOGO_URL: "https://avatars.githubusercontent.com/u/36515619?v=4"
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  IMAGE_NAME: "${{ github.event.repository.name }}"
+  IMAGE_KEYWORDS: "bootc,fedora,ostree"
   IMAGE_DESC: "ChickenIQ's Custom Image"
-  IMAGE_TAG: "latest"
+  IMAGE_TAG: "${{ inputs.variant }}"
 
 jobs:
   build:
@@ -30,6 +32,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Get current date
+        id: date
+        run: echo "date=$(date -u +%Y\-%m\-%d\T%H\:%M\:%S\Z)" >> $GITHUB_OUTPUT
+
+      - name: Image Metadata
+        uses: docker/metadata-action@v5
+        id: metadata
+        with:
+          sep-tags: " "
+          sep-annotations: " "
+          tags: |
+            type=raw,value=${{ env.IMAGE_TAG }}
+            type=raw,value=${{ env.IMAGE_TAG }}.{{date 'YYYYMMDD'}}
+            type=raw,value={{date 'YYYYMMDD'}}
+            type=sha,enable=${{ github.event_name == 'pull_request' }}
+            type=ref,event=pr
+          labels: |
+            org.opencontainers.image.documentation=https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}/refs/heads/main/README.md
+            org.opencontainers.image.source=https://github.com/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}/blob/main/Containerfile
+            org.opencontainers.image.url=https://github.com/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+            org.opencontainers.image.version=${{ env.IMAGE_TAG }}.{{date 'YYYYMMDD'}}
+            org.opencontainers.image.created=${{ steps.date.outputs.date }}
+            org.opencontainers.image.vendor=${{ github.repository_owner }}
+            org.opencontainers.image.description=${{ env.IMAGE_DESC }}
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}/refs/heads/main/README.md
+            io.artifacthub.package.keywords=${{ env.IMAGE_KEYWORDS }}
+            io.artifacthub.package.logo-url=${{ env.IMAGE_LOGO_URL }}
+            io.artifacthub.package.deprecated=false
+            io.artifacthub.package.prerelease=false
+            io.artifacthub.package.license=MIT
+            containers.bootc=1
+
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@v2
@@ -38,7 +73,9 @@ jobs:
         with:
           image: ${{ env.IMAGE_NAME }}
           containerfiles: ./Containerfile
+          tags: ${{ steps.metadata.outputs.tags }}
           build-args: VARIANT=${{ inputs.variant }}
+          labels: ${{ steps.metadata.outputs.labels }}
           extra-args: --secret=id=secureboot,env=SECUREBOOT_KEY
 
       - name: Login to GitHub Container Registry
