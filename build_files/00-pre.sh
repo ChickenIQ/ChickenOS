@@ -22,31 +22,6 @@ dnf5 -y copr enable petersen/nix
 dnf5 -y copr enable ilyaz/LACT
 
 
-# Install Nix
-mkdir -p /nix /var/nix/
-dnf5 -y install nix
-
-cat > /etc/systemd/system/nix.mount <<'EOF'
-[Unit]
-Description=Mount `/var/nix` on `/nix`
-PropagatesStopTo=nix-daemon.service
-ConditionPathIsDirectory=/nix
-DefaultDependencies=no
-
-[Mount]
-What=/var/nix
-Where=/nix
-Type=none
-DirectoryMode=0755
-Options=bind
-
-[Install]
-RequiredBy=nix-daemon.service
-RequiredBy=nix-daemon.socket
-EOF
-
-systemctl enable nix-daemon nix.mount
-
 
 # Setup Flatpak
 curl -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo

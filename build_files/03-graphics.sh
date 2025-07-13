@@ -1,14 +1,16 @@
 #!/bin/bash
 set -ouex pipefail
-[ "$VARIANT" != "nvidia" ] && exit 0
+
+# Enable Overclocking
+dnf5 -y install lact
+systemctl enable lactd.service
+echo 'kargs = ["amdgpu.ppfeaturemask=0xffffffff"]' > /usr/lib/bootc/kargs.d/00-amd.toml
 
 
 # Install Driver
+[ "$VARIANT" != "nvidia" ] && exit 0
 dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
 dnf5 -y install nvidia-driver
-
-
-# Ensure KMOD Is Built
 akmods --force --kernels $(basename -a /usr/src/kernels/*/)
 
 
