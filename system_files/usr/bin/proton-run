@@ -1,27 +1,27 @@
 #!/bin/sh
-[ "${DEBUG:-}" = "true" ] && set -x
+[ "${DEBUG:-false}" = "true" ] && set -x
 set -oue pipefail
 
 export PROTONPATH="${PROTONPATH:-/usr/share/steam/compatibilitytools.d/Proton-System}"
 export WINEPREFIX="${WINEPREFIX:-$HOME/.local/share/umu/prefix}"
+export STEAMROOT="${STEAMROOT:-$HOME/.local/share/Steam}"
 [ "$1" = "winetricks" ] && umu-run "$@" && exit 0
 
-for STEAMROOT in "$HOME/.local/share/Steam" "$HOME/.var/app/com.valvesoftware.Steam/.local/share/Steam"; do
-    if [ -d "$STEAMROOT" ]; then
-        export STEAMDIR="$WINEPREFIX/drive_c/Program Files (x86)/Steam"
-        mkdir -p "$STEAMDIR"
+if [ -d "$STEAMROOT" ]; then
+    export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b}"
+    export STEAMDIR="$WINEPREFIX/drive_c/Program Files (x86)/Steam"
+    mkdir -p "$STEAMDIR"
 
-        ln -sf "$STEAMROOT/legacycompat/SteamService.exe" "$STEAMDIR/steam.exe"
-        for file in GameOverlayRenderer64.dll steamclient64.dll steamclient.dll Steam.dll; do
-            ln -sf "$STEAMROOT/legacycompat/$file" "$STEAMDIR/"
-        done
+    ln -sf "$STEAMROOT/legacycompat/SteamService.exe" "$STEAMDIR/steam.exe"
+    for file in GameOverlayRenderer64.dll steamclient64.dll steamclient.dll Steam.dll; do
+        ln -sf "$STEAMROOT/legacycompat/$file" "$STEAMDIR/"
+    done
 
-        export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b}"
+    if [ "${FORCE_OVERLAY:-false}" = "true" ]; then
         export LD_PRELOAD="${LD_PRELOAD:-$STEAMROOT/ubuntu12_64/gameoverlayrenderer.so}"
         export GAMEID="${GAMEID:-umu-480}"
-        break
     fi
-done
+fi
 
 export PROTON_VERB="${PROTON_VERB:-run}"
 umu-run "$@"
