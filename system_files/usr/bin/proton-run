@@ -1,43 +1,27 @@
 #!/bin/sh
-set -ouex pipefail
+[ "${DEBUG:-}" = "true" ] && set -x
+set -oue pipefail
 
-if [ -d "/home/$USER/.local/share/Steam" ]; then
-    STEAMDIR="/home/$USER/.local/share/Steam"
-elif [ -d "/home/$USER/.var/app/com.valvesoftware.Steam/.local/share/Steam" ]; then
-    STEAMDIR="/home/$USER/.var/app/com.valvesoftware.Steam/.local/share/Steam"
-else
-    zenity --error --title="Steam Directory Not Found" --text="Please run steam before proceeding!" && exit 1
-fi
-
-# Workaround until the zenity bug is fixed
-UMU_DIR=/home/$USER/.local/share/umu/steamrt3
-if [ ! -d "$UMU_DIR" ]; then
-    URL=https://repo.steampowered.com/steamrt-images-sniper/snapshots/latest-container-runtime-public-beta/SteamLinuxRuntime_sniper.tar.xz
-    TMP_DIR=$(mktemp -d /tmp/steamrt.XXXXXXXXXX) && mkdir -p $UMU_DIR
-
-    curl -Lo $TMP_DIR/SteamRuntime.tar.xz $URL | zenity --title "Downloading Runtime" --progress --pulsate --no-cancel --auto-close 
-    tar -xf $TMP_DIR/SteamRuntime.tar.xz -C $TMP_DIR
-
-    mv $TMP_DIR/SteamLinuxRuntime*/* $UMU_DIR
-    mv $UMU_DIR/_v2-entry-point $UMU_DIR/umu 
-    rm -rf $TMP_DIR
-fi
-
-export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b}"
 export PROTONPATH="${PROTONPATH:-/usr/share/steam/compatibilitytools.d/Proton-System}"
-export WINEPREFIX="${WINEPREFIX:-/home/$USER/.local/share/umu/prefix}"
+export WINEPREFIX="${WINEPREFIX:-$HOME/.local/share/umu/prefix}"
+[ "$1" = "winetricks" ] && umu-run "$@" && exit 0
 
-export TARGET="$WINEPREFIX/drive_c/Program Files (x86)/Steam"
-mkdir -p "$TARGET"
+for STEAMROOT in "$HOME/.local/share/Steam" "$HOME/.var/app/com.valvesoftware.Steam/.local/share/Steam"; do
+    if [ -d "$STEAMROOT" ]; then
+        export STEAMDIR="$WINEPREFIX/drive_c/Program Files (x86)/Steam"
+        mkdir -p "$STEAMDIR"
 
-ln -sf "$STEAMDIR/legacycompat/SteamService.exe" "$TARGET/steam.exe"
-ln -sf "$STEAMDIR/legacycompat/GameOverlayRenderer64.dll" "$TARGET"
-ln -sf "$STEAMDIR/legacycompat/steamclient64.dll" "$TARGET"
-ln -sf "$STEAMDIR/legacycompat/steamclient.dll" "$TARGET"
-ln -sf "$STEAMDIR/legacycompat/Steam.dll" "$TARGET"
+        ln -sf "$STEAMROOT/legacycompat/SteamService.exe" "$STEAMDIR/steam.exe"
+        for file in GameOverlayRenderer64.dll steamclient64.dll steamclient.dll Steam.dll; do
+            ln -sf "$STEAMROOT/legacycompat/$file" "$STEAMDIR/"
+        done
 
-[ "$1" != "winetricks" ] && export PROTON_VERB="${PROTON_VERB:-runinprefix}"
-export LD_PRELOAD="$STEAMDIR/ubuntu12_64/gameoverlayrenderer.so" 
-export GAMEID="umu-480"
+        export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-OnlineFix64=n;SteamOverlay64=n;winmm=n,b;dnet=n;steam_api64=n;winhttp=n,b}"
+        export LD_PRELOAD="${LD_PRELOAD:-$STEAMROOT/ubuntu12_64/gameoverlayrenderer.so}"
+        export GAMEID="${GAMEID:-umu-480}"
+        break
+    fi
+done
 
+export PROTON_VERB="${PROTON_VERB:-run}"
 umu-run "$@"
