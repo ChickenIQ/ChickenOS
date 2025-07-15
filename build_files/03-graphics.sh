@@ -9,9 +9,10 @@ echo 'kargs = ["amdgpu.ppfeaturemask=0xffffffff"]' > /usr/lib/bootc/kargs.d/00-a
 
 # Install Driver
 [ "$VARIANT" != "nvidia" ] && exit 0
-dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
-dnf5 -y install nvidia-driver
-akmods --force --kernels $(basename -a /usr/src/kernels/*/)
+# dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+# dnf5 -y install nvidia-driver
+dnf5 -y install kernel-cachyos-lto-nvidia-open
+# akmods --force --kernels $(basename -a /usr/src/kernels/*/)
 
 
 # Disable Nouveau
@@ -20,8 +21,8 @@ kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau", "nvidia-dr
 EOF
 
 
-# Sysusers
-cat > /usr/lib/sysusers.d/akmods.conf <<'EOF'
-u akmods 967:966 "User is used by akmods to build akmod packages" /var/cache/akmods/ /sbin/nologin
-g akmods 966
-EOF
+# # Sysusers
+# cat > /usr/lib/sysusers.d/akmods.conf <<'EOF'
+# u akmods 967:966 "User is used by akmods to build akmod packages" /var/cache/akmods/ /sbin/nologin
+# g akmods 966
+# EOF
