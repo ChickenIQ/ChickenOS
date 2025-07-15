@@ -33,6 +33,7 @@ pkgs_install=(
   thefuck
   steam
   nvtop
+  code
   keyd
   tldr
   kate
