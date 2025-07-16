@@ -1,10 +1,14 @@
 #!/bin/bash
 set -ouex pipefail
 
+export KERNEL_PKGS="kernel-cachyos-lto kernel-cachyos-lto-devel-matched"
+[ "$VARIANT" = "nvidia" ] && KERNEL_PKGS="kernel-cachyos kernel-cachyos-devel-matched"
+
 
 # Setup Packages
 dnf5 -y install --allowerasing cachyos-settings scx-scheds
 systemctl enable scx.service
+
 
 # Replace Kernel
 dnf5 -y install sbsigntools kernel-cachyos kernel-cachyos-devel-matched

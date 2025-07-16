@@ -17,6 +17,7 @@ dnf5 -y install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-r
 dnf5 -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm 
 dnf5 -y copr enable gloriouseggroll/nobara-42 && dnf5 -y copr disable gloriouseggroll/nobara-42
 dnf5 -y copr enable bieszczaders/kernel-cachyos-addons
+dnf5 -y copr enable bieszczaders/kernel-cachyos-lto
 dnf5 -y copr enable bieszczaders/kernel-cachyos
 dnf5 -y copr enable alternateved/keyd
 dnf5 -y copr enable atim/starship
