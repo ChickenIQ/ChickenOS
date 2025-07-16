@@ -2,6 +2,13 @@
 set -ouex pipefail
 
 
+# Regenerate Initramfs
+export KERNEL=$(basename -a /usr/src/kernels/*/) 
+export DRACUT_NO_XATTR=1
+dracut --no-hostonly --kver $KERNEL --reproducible -v --add ostree -f /lib/modules/$KERNEL/initramfs.img
+chmod 0600 /lib/modules/$KERNEL/initramfs.img
+
+
 # Cleanup
 dnf5 clean all
 find /var/cache/* -maxdepth 0 -type d \! -name libdnf5 -exec rm -rf {} \;
