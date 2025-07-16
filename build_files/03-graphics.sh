@@ -4,20 +4,20 @@ set -ouex pipefail
 # Enable Overclocking
 dnf5 -y install lact
 systemctl enable lactd.service
-cat > /usr/lib/bootc/kargs.d/00-amd.toml <<'EOF'
-kargs = ["amdgpu.ppfeaturemask=0xffffffff"]
-EOF
+echo 'kargs = ["amdgpu.ppfeaturemask=0xffffffff"]' > /usr/lib/bootc/kargs.d/00-amd.toml
+
 
 # Install Driver
 [ "$VARIANT" != "nvidia" ] && exit 0
-dnf5 -y install kernel-cachyos-lto-nvidia-open akmods
+dnf5 -y install akmod-nvidia xorg-x11-drv-nvidia-cuda
+echo "%_with_kmod_nvidia_open 1" > /etc/rpm/macros.nvidia-kmod
 akmods --force --kernels $(basename -a /usr/src/kernels/*/)
 
 
-# # Disable Nouveau
-# cat > /usr/lib/bootc/kargs.d/00-nvidia.toml <<'EOF'
-# kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau", "nvidia-drm.modeset=1"]
-# EOF
+# Disable Nouveau
+cat > /usr/lib/bootc/kargs.d/00-nvidia.toml <<'EOF'
+kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau", "nvidia-drm.modeset=1"]
+EOF
 
 
 # Sysusers
