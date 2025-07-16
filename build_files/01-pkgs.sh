@@ -82,16 +82,25 @@ mv /tmp/rnnoise/linux-rnnoise/ladspa/librnnoise_ladspa.so /usr/lib64/librnnoise_
 rm -rf /tmp/rnnoise
 
 
-# Install UMU Launcher with Proton-CachyOS
-dnf5 -y --enablerepo=copr:copr.fedorainfracloud.org:gloriouseggroll:nobara-42 install umu-launcher
-URL=$(curl -s https://api.github.com/repos/CachyOS/proton-cachyos/releases/latest | grep browser_download_url | cut -d\" -f4 | grep 'x86_64_v3\.tar\.xz$')
+# Install UMU Launcher
+URL=$(curl -s https://api.github.com/repos/Open-Wine-Components/umu-launcher/releases/latest | grep browser_download_url | cut -d\" -f4 | grep 'zipapp.tar$')
+TMP_DIR=/tmp/umu
+
+mkdir -p $TMP_DIR
+curl -Lo $TMP_DIR/umu.tar $URL
+tar -xf $TMP_DIR/umu.tar -C $TMP_DIR
+mv $TMP_DIR/umu/umu-run /tmp && rm -rf $TMP_DIR
+
+
+# Install Proton-GE
+URL=$(curl -s https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest | grep browser_download_url | cut -d\" -f4 | grep '.tar.gz$')
 INSTALL_DIR=/usr/share/steam/compatibilitytools.d/Proton-System
 TMP_DIR=/tmp/proton
 
 mkdir -p $INSTALL_DIR $TMP_DIR
-curl -Lo $TMP_DIR/proton.tar.xz $URL
-tar -xf $TMP_DIR/proton.tar.xz -C $TMP_DIR
-mv $TMP_DIR/proton-cachyos*/* $INSTALL_DIR && rm -rf $TMP_DIR
+curl -Lo $TMP_DIR/proton.tar.gz $URL
+tar -xzf $TMP_DIR/proton.tar.gz -C $TMP_DIR
+mv $TMP_DIR/*/* $INSTALL_DIR && rm -rf $TMP_DIR
 
 cat > $INSTALL_DIR/compatibilitytool.vdf <<'EOF'
 "compatibilitytools"
