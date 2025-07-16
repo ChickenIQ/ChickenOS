@@ -2,8 +2,7 @@
 set -ouex pipefail
 
 # Enable Overclocking
-dnf5 -y install lact
-systemctl enable lactd.service
+dnf5 -y install lact && systemctl enable lactd.service
 echo 'kargs = ["amdgpu.ppfeaturemask=0xffffffff"]' > /usr/lib/bootc/kargs.d/00-amd.toml
 
 

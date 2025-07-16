@@ -45,7 +45,7 @@ pkgs_install=(
 # Setup Packages
 dnf5 -y install $(echo "${pkgs_install[*]}")
 dnf5 -y remove $(echo "${pkgs_remove[*]}")
-systemctl enable podman.service
+systemctl enable podman.service keyd.service
 
 
 # Install Nix
