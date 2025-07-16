@@ -4,13 +4,13 @@ set -ouex pipefail
 # Enable Overclocking
 dnf5 -y install lact
 systemctl enable lactd.service
-echo 'kargs = ["amdgpu.ppfeaturemask=0xffffffff"]' > /usr/lib/bootc/kargs.d/00-amd.toml
-
+cat > /usr/lib/bootc/kargs.d/00-amd.toml <<'EOF'
+kargs = ["amdgpu.ppfeaturemask=0xffffffff"]
+EOF
 
 # Install Driver
 [ "$VARIANT" != "nvidia" ] && exit 0
-dnf5 config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
-dnf5 -y install nvidia-driver
+dnf5 -y install akmod-nvidia xorg-x11-drv-nvidia-cuda
 akmods --force --kernels $(basename -a /usr/src/kernels/*/)
 
 

@@ -18,7 +18,6 @@ pkgs_remove=(
   kjournald
   toolbox
   firefox
-  kwrite
   kfind
   krfb
 )
@@ -31,12 +30,12 @@ pkgs_install=(
   fastfetch
   starship
   thefuck
+  discord
   steam
   nvtop
   code
   keyd
   tldr
-  kate
   btop
   fish
   vim
