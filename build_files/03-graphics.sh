@@ -8,14 +8,15 @@ echo 'kargs = ["amdgpu.ppfeaturemask=0xffffffff"]' > /usr/lib/bootc/kargs.d/00-a
 
 
 dnf5 -y install akmod-nvidia xorg-x11-drv-nvidia-cuda
-sed -i 's@omit_drivers@force_drivers@g' /usr/lib/dracut/dracut.conf.d/99-nvidia-dracut.conf
-sed -i 's@ nvidia @ i915 amdgpu nvidia @g' /usr/lib/dracut/dracut.conf.d/99-nvidia-dracut.conf
 akmods --force --kernels $(basename -a /usr/src/kernels/*/)
 
+# Early Load NVIDIA Drivers
+sed -i 's@omit_drivers@force_drivers@g' /usr/lib/dracut/dracut.conf.d/99-nvidia-dracut.conf
+sed -i 's@ nvidia @ i915 amdgpu nvidia @g' /usr/lib/dracut/dracut.conf.d/99-nvidia-dracut.conf
 
 # Setup Kernel Arguments
 cat > /usr/lib/bootc/kargs.d/00-nvidia.toml <<'EOF'
-kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau", "nvidia-drm.modeset=1", "nvidia.NVreg_EnableGpuFirmware=0"]
+kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau", "nvidia-drm.modeset=0", "nvidia.NVreg_EnableGpuFirmware=0"]
 EOF
 
 
