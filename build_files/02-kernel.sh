@@ -6,7 +6,7 @@ export KERNEL_PKGS="kernel-cachyos-lto kernel-cachyos-lto-devel-matched"
 
 
 # Setup Packages
-dnf5 -y install --allowerasing cachyos-settings scx-scheds
+dnf5 -y install --allowerasing cachyos-settings scx-scheds $KERNEL_PKGS
 systemctl enable scx.service
 
 
