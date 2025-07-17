@@ -96,7 +96,7 @@ TMP_DIR=/tmp/umu
 mkdir -p $TMP_DIR
 curl -Lo $TMP_DIR/umu.tar $URL
 tar -xf $TMP_DIR/umu.tar -C $TMP_DIR
-mv $TMP_DIR/umu/umu-run /tmp && rm -rf $TMP_DIR
+mv $TMP_DIR/umu/umu-run /usr/bin && rm -rf $TMP_DIR
 
 
 # Install Proton-GE
