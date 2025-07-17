@@ -3,9 +3,9 @@ set -ouex pipefail
 
 
 # Regenerate Initramfs
+export DRACUT_NO_XATTR=1
 KERNEL=$(basename -a /usr/src/kernels/*/) 
-DRACUT_NO_XATTR=1 dracut --no-hostonly --kver $KERNEL --reproducible -v --add ostree -f /lib/modules/$KERNEL/initramfs.img
-chmod 0600 /lib/modules/$KERNEL/initramfs.img
+dracut --no-hostonly --kver $KERNEL --reproducible -v --add ostree -f /lib/modules/$KERNEL/initramfs.img
 
 
 # Cleanup

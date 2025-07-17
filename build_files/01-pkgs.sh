@@ -24,15 +24,17 @@ pkgs_remove=(
 
 
 pkgs_install=(
+  qemu-system-aarch64
   plasma-firewall
   wireguard-tools
+  virt-manager
   distrobox
   fastfetch
   starship
-  thefuck
   discord
   steam
   nvtop
+  lact
   code
   keyd
   tldr
@@ -45,7 +47,12 @@ pkgs_install=(
 # Setup Packages
 dnf5 -y install $(echo "${pkgs_install[*]}")
 dnf5 -y remove $(echo "${pkgs_remove[*]}")
-systemctl enable podman.service keyd.service
+systemctl enable podman.service keyd.service lactd.service libvirtd.service
+
+
+# Setup Sysusers
+echo "u qat 995" > /usr/lib/sysusers.d/qat.conf
+echo "g libvirt 962" > /usr/lib/sysusers.d/libvirt.conf
 
 
 # Install Nix
