@@ -4,7 +4,7 @@ set -ouex pipefail
 
 
 # Install Driver
-dnf5 -y  kernel-cachyos-lto-nvidia-open xorg-x11-drv-nvidia-cuda
+dnf5 -y install kernel-cachyos-lto-nvidia-open xorg-x11-drv-nvidia-cuda
 # akmods --force --kernels $(basename -a /usr/src/kernels/*/)
 
 
