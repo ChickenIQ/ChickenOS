@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
-[ "$1" != "add" ] || [ ! -x "$(command -v sbsign)" ] && exit 0
 PRIV_KEY="/etc/pki/akmods/private/private_key.priv"
 PUB_KEY="/etc/pki/akmods/certs/public_key.der"
+[ "$1" != "add" ] && exit 0
 KERNEL="$4"
 
 [[ ! -f "$PRIV_KEY" || ! -f "$PUB_KEY" ]] && exit 0
