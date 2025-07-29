@@ -30,3 +30,9 @@ systemctl disable flatpak-add-fedora-repos.service
 
 # Rename Release
 sed -i -E -e '/^VERSION=/ s/\([^)]*\)/(ChickenOS)/' -e '/^PRETTY_NAME=/ s/\([^)]*\)/(ChickenOS)/' /usr/lib/os-release
+
+
+# Disable Service
+systemctl disable NetworkManager-wait-online.service 
+
+
