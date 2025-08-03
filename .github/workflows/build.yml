@@ -4,10 +4,7 @@ on:
   schedule: [cron: "05 10 * * *"]
   workflow_dispatch:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - "**/README.md"
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}

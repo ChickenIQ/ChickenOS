@@ -4,14 +4,14 @@ on:
   workflow_call:
     inputs:
       variant:
+        type: string
         default: main
         required: true
-        type: string
 
 env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-  IMAGE_NAME: "${{ github.event.repository.name }}"
-  IMAGE_TAG: "${{ inputs.variant }}"
+  IMAGE_NAME: ${{ github.event.repository.name }}
+  IMAGE_TAG: ${{ inputs.variant }}
 jobs:
   build:
     name: Build and push image
