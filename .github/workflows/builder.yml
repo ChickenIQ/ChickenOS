@@ -42,7 +42,7 @@ jobs:
           push: true
           file: Containerfile
           secrets: |
-            secureboot=${{ secrets.SECUREBOOT_KEY }}
+            secureboot="${{ secrets.SECUREBOOT_KEY }}"
           tags: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Install Cosign
