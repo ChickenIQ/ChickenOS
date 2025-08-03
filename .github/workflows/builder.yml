@@ -44,9 +44,10 @@ jobs:
           push: true
           file: Containerfile
           secret-envs: secureboot=SECUREBOOT_KEY
+          build-args: VARIANT=${{ inputs.variant }}
           tags: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
-      - name: Install Cosign
+      - name: Install Cosignv
         uses: sigstore/cosign-installer@v3.9.0
 
       - name: Sign container image
