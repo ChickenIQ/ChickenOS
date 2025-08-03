@@ -8,6 +8,7 @@ echo "SCX_SCHEDULER=scx_lavd" > /etc/default/scx && systemctl enable scx.service
 
 
 # Replace Kernel
-dnf5 -y install kernel-cachyos-lto kernel-cachyos-lto-devel-matched
+KERNEL="kernel-cachyos-lto" 
 rpm --nodeps --erase kernel-{core,modules,modules-core,modules-extra}
+dnf5 -y install $KERNEL $KERNEL-devel-matched
 setsebool -P domain_kernel_load_modules on
