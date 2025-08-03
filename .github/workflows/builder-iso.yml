@@ -44,6 +44,7 @@ jobs:
         id: build
         uses: osbuild/bootc-image-builder-action@main
         with:
+          rootfs: btrfs
           types: anaconda-iso
           config-file: ./iso.toml
           image: ${{ env.IMAGE_FULL }}
