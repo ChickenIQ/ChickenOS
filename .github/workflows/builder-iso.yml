@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Change ISO Variant
-        run: sed -i 's/--transport registry [^ ]\+/--transport registry ${{ env.IMAGE_FULL }}/g' ./iso.toml
+        run: sed -i 's|--transport registry [^ ]\+|--transport registry ${{ env.IMAGE_FULL }}|g' ./iso.toml
 
       - name: Build
         id: build
