@@ -31,6 +31,7 @@ pkgs_install=(
   virt-manager
   distrobox
   fastfetch
+  openh264
   starship
   discord
   steam
@@ -83,7 +84,7 @@ systemctl enable nix-daemon nix.mount
 
 
 # Patch Spotify
-sh -c "$(curl -sSL https://spotx-official.github.io/run.sh)" -e > /dev/null
+sh -c "$(curl -sSL https://spotx-official.github.io/run.sh)" -- -e > /dev/null
 
 
 # Install RNNoise

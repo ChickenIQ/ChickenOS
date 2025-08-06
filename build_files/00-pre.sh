@@ -13,6 +13,7 @@ fi
 # Setup Repos
 dnf5 -y install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dnf5 -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm 
+dnf5 -y config-manager setopt fedora-cisco-openh264.enabled=1
 dnf5 -y config-manager addrepo --from-repofile=https://packages.microsoft.com/yumrepos/vscode/config.repo
 dnf5 -y config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-spotify.repo
 dnf5 -y copr enable bieszczaders/kernel-cachyos-addons
