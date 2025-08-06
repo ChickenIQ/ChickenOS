@@ -27,6 +27,7 @@ pkgs_install=(
   qemu-system-aarch64
   plasma-firewall
   wireguard-tools
+  spotify-client
   virt-manager
   distrobox
   fastfetch
@@ -79,6 +80,10 @@ RequiredBy=nix-daemon.socket
 EOF
 
 systemctl enable nix-daemon nix.mount
+
+
+# Patch Spotify
+sh -c "$(curl -sSL https://spotx-official.github.io/run.sh)" -e > /dev/null
 
 
 # Install RNNoise

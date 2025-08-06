@@ -11,10 +11,10 @@ fi
 
 
 # Setup Repos
-echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo
-rpm --import https://packages.microsoft.com/keys/microsoft.asc
 dnf5 -y install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dnf5 -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm 
+dnf5 -y config-manager addrepo --from-repofile=https://packages.microsoft.com/yumrepos/vscode/config.repo
+dnf5 -y config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-spotify.repo
 dnf5 -y copr enable bieszczaders/kernel-cachyos-addons
 dnf5 -y copr enable bieszczaders/kernel-cachyos-lto
 dnf5 -y copr enable alternateved/keyd
@@ -33,6 +33,4 @@ sed -i -E -e '/^VERSION=/ s/\([^)]*\)/(ChickenOS)/' -e '/^PRETTY_NAME=/ s/\([^)]
 
 
 # Disable Service
-systemctl disable NetworkManager-wait-online.service 
-
-
+systemctl disable NetworkManager-wait-online.service
