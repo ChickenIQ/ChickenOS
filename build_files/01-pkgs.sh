@@ -103,7 +103,7 @@ mkdir -p $TMP_DIR
 curl -Lo $TMP_DIR/umu.tar $URL
 tar -xf $TMP_DIR/umu.tar -C $TMP_DIR
 mv $TMP_DIR/umu/umu-run /usr/bin
-chmod +x $TMP_DIR/umu/umu-run
+chmod +x /usr/bin/umu-run
 rm -rf $TMP_DIR
 
 
