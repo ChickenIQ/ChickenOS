@@ -24,5 +24,4 @@ if [ -d "$STEAMROOT" ]; then
 fi
 
 export PROTON_VERB="${PROTON_VERB:-run}"
-export UMU_ZENITY="${UMU_ZENITY:-1}"
 umu-run "$@"

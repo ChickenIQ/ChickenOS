@@ -91,7 +91,7 @@ sh -c "$(curl -sSL https://spotx-official.github.io/run.sh)" -- -e > /dev/null
 mkdir -p /tmp/rnnoise
 curl -L http://github.com/werman/noise-suppression-for-voice/releases/latest/download/linux-rnnoise.zip -o /tmp/rnnoise/rnnoise.zip 
 unzip -o /tmp/rnnoise/rnnoise.zip -d /tmp/rnnoise
-mv /tmp/rnnoise/linux-rnnoise/ladspa/librnnoise_ladspa.so /usr/lib64/librnnoise_ladspa.so
+mv /tmp/rnnoise/linux-rnnoise/ladspa/librnnoise_ladspa.so /usr/lib64
 rm -rf /tmp/rnnoise
 
 
@@ -102,7 +102,9 @@ TMP_DIR=/tmp/umu
 mkdir -p $TMP_DIR
 curl -Lo $TMP_DIR/umu.tar $URL
 tar -xf $TMP_DIR/umu.tar -C $TMP_DIR
-mv $TMP_DIR/umu/umu-run /usr/bin && rm -rf $TMP_DIR
+mv $TMP_DIR/umu/umu-run /usr/bin
+chmod +x $TMP_DIR/umu/umu-run
+rm -rf $TMP_DIR
 
 
 # Install Proton-GE
