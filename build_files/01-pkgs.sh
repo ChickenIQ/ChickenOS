@@ -31,6 +31,7 @@ pkgs_install=(
   virt-manager
   distrobox
   fastfetch
+  gamescope
   openh264
   starship
   discord
