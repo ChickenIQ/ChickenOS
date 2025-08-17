@@ -1,40 +1,19 @@
 #!/bin/bash
 set -ouex pipefail
 
-pkgs_remove=(
-  plasma-browser-integration
-  fedora-chromium-config-kde
-  fedora-chromium-config
-  fedora-flathub-remote
-  mozilla-filesystem
-  fedora-bookmarks
-  firewall-config
-  plasma-welcome
-  kdebugsettings
-  kinfocenter
-  khelpcenter
-  kcharselect
-  kde-connect
-  kjournald
-  toolbox
-  firefox
-  kfind
-  krfb
-)
-
-
 pkgs_install=(
   qemu-system-aarch64
-  plasma-firewall
   wireguard-tools
   spotify-client
   virt-manager
+  sbsigntools
   distrobox
   fastfetch
   gamescope
   openh264
   starship
   discord
+  openssl
   steam
   nvtop
   lact
@@ -49,7 +28,6 @@ pkgs_install=(
 
 # Setup Packages
 dnf5 -y install $(echo "${pkgs_install[*]}")
-dnf5 -y remove $(echo "${pkgs_remove[*]}")
 systemctl enable podman.service keyd.service lactd.service libvirtd.service
 
 

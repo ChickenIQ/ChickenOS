@@ -16,11 +16,6 @@ if [ -d "$STEAMROOT" ]; then
     for file in GameOverlayRenderer64.dll steamclient64.dll steamclient.dll Steam.dll; do
         ln -sf "$STEAMROOT/legacycompat/$file" "$STEAMDIR/"
     done
-
-    if [ "${FORCE_OVERLAY:-false}" = "true" ]; then
-        export LD_PRELOAD="${LD_PRELOAD:-$STEAMROOT/ubuntu12_64/gameoverlayrenderer.so}"
-        export GAMEID="${GAMEID:-umu-480}"
-    fi
 fi
 
 export PROTON_VERB="${PROTON_VERB:-run}"

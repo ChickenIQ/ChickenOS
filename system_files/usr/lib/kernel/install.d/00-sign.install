@@ -5,6 +5,7 @@ PUB_KEY="/etc/pki/akmods/certs/public_key.der"
 [ "$1" != "add" ] && exit 0
 KERNEL="$4"
 
+[[ ! -x "$(command -v openssl)" || ! -x "$(command -v sbsign)" ]] && exit 0
 [[ ! -f "$PRIV_KEY" || ! -f "$PUB_KEY" ]] && exit 0
 
 sbsign --key "$PRIV_KEY" --cert <(openssl x509 -in "$PUB_KEY" -inform der -outform pem) --output "$KERNEL.signed" "$KERNEL"
