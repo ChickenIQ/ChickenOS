@@ -4,7 +4,7 @@ set -ouex pipefail
 
 
 # Install Driver
-dnf5 -y install nvidia-driver nvidia-driver-cuda cuda-devel
+dnf5 -y install nvidia-driver nvidia-driver-cuda
 
 
 # Early Load NVIDIA Drivers
