@@ -10,6 +10,7 @@ pkgs_install=(
   distrobox
   fastfetch
   gamescope
+  mangohud
   openh264
   starship
   discord
