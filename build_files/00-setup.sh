@@ -10,26 +10,29 @@ if [ -f /run/secrets/secureboot ]; then
 fi 
 
 
-# Setup Repos
-dnf5 -y install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-dnf5 -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm 
-dnf5 -y config-manager setopt fedora-cisco-openh264.enabled=1
-dnf5 -y config-manager addrepo --from-repofile=https://packages.microsoft.com/yumrepos/vscode/config.repo
-dnf5 -y config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-spotify.repo
-dnf5 -y copr enable alternateved/keyd
-dnf5 -y copr enable atim/starship
-dnf5 -y copr enable petersen/nix
-dnf5 -y copr enable ilyaz/LACT
-
-
 # Setup Flatpak
 curl -Lo /etc/flatpak/remotes.d/flathub.flatpakrepo https://dl.flathub.org/repo/flathub.flatpakrepo
 systemctl disable flatpak-add-fedora-repos.service
 
 
-# Rename Release
-sed -i -E -e '/^VERSION=/ s/\([^)]*\)/(ChickenOS)/' -e '/^PRETTY_NAME=/ s/\([^)]*\)/(ChickenOS)/' /usr/lib/os-release
+# Setup RPM Fusion
+dnf5 -y install https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dnf5 -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm 
+dnf5 -y config-manager setopt fedora-cisco-openh264.enabled=1
 
 
-# Disable Service
-systemctl disable NetworkManager-wait-online.service
+# Setup Other Repos
+repo_copr=(
+  alternateved/keyd
+  atim/starship
+  petersen/nix
+  ilyaz/LACT
+)
+
+repo_file=(
+  https://packages.microsoft.com/yumrepos/vscode/config.repo
+  https://negativo17.org/repos/fedora-spotify.repo
+)
+
+for repo in "${repo_copr[@]}"; do dnf5 -y copr enable "$repo" > /dev/null; done
+for repo in "${repo_file[@]}"; do dnf5 -y config-manager addrepo --from-repofile="$repo"; done

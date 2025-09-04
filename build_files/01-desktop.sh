@@ -33,3 +33,7 @@ pkgs_install=(
 # Setup Packages
 dnf5 -y install $(echo "${pkgs_install[*]}")
 dnf5 -y remove $(echo "${pkgs_remove[*]}")
+
+
+# Disable Services
+systemctl disable NetworkManager-wait-online.service
