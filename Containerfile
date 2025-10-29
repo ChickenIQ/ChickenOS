@@ -1,7 +1,7 @@
 FROM scratch AS ctx
 COPY build_files /
 
-FROM quay.io/fedora/fedora-kinoite:42
+FROM quay.io/fedora/fedora-kinoite:43
 ARG VARIANT="${VARIANT:-main}"
 RUN  rm -rf /etc/skel
 COPY system_files /
