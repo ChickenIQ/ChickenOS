@@ -25,6 +25,6 @@ jobs:
       matrix:
         variant:
           - main
-          - nvidia
+          # - nvidia
     with:
       variant: ${{ matrix.variant }}
