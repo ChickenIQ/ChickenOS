@@ -1,9 +1,15 @@
 #!/bin/bash
 set -ouex pipefail
 
+pkgs_remove=(
+  podman
+)
+
+
 pkgs_install=(
   qemu-system-aarch64
   wireguard-tools
+  docker-compose
   spotify-client
   virt-manager
   sbsigntools
@@ -29,7 +35,7 @@ pkgs_install=(
 
 # Setup Packages
 dnf5 -y install $(echo "${pkgs_install[*]}")
-systemctl enable podman.service keyd.service lactd.service libvirtd.service
+systemctl enable docker.service keyd.service lactd.service libvirtd.service
 
 
 # Setup Sysusers
