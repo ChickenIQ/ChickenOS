@@ -4,7 +4,8 @@ set -ouex pipefail
 
 
 # Install Driver
-dnf5 -y install akmod-nvidia xorg-x11-drv-nvidia-cuda
+dnf5 -y config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+dnf5 -y install nvidia-driver nvidia-driver-cuda
 
 # Early Load NVIDIA Drivers
 sed -i "s@omit_drivers@force_drivers@g" /usr/lib/dracut/dracut.conf.d/99-nvidia-dracut.conf
