@@ -5,7 +5,6 @@ pkgs_remove=(
   podman
 )
 
-
 pkgs_install=(
   qemu-system-aarch64
   wireguard-tools
@@ -34,6 +33,7 @@ pkgs_install=(
 
 
 # Setup Packages
+dnf5 -y remove $(echo "${pkgs_remove[*]}")
 dnf5 -y install $(echo "${pkgs_install[*]}")
 systemctl enable docker.service keyd.service lactd.service libvirtd.service
 
