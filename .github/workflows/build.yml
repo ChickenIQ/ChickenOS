@@ -1,7 +1,7 @@
 name: build
 
 on:
-  schedule: [cron: "0 0 */3 * *"]
+  # schedule: [cron: "0 0 */3 * *"]
   workflow_dispatch:
   push:
     branches: [main]
