@@ -1,0 +1,32 @@
+FROM localhost/chickenos:disk
+
+ARG PACKAGES="dracut-live grub2-efi-x64-cdboot grub2-pc-modules xorriso squashfs-tools isomd5sum jq"
+
+RUN --mount=type=cache,dst=/var/cache \
+    --mount=type=cache,dst=/var/log \
+    --mount=type=tmpfs,dst=/run \
+    dnf install -y $PACKAGES && dnf clean all \
+    && k=$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == true) | .version') \
+    && mkdir -p /boot/efi /usr/lib/image-builder/bootc "$(realpath /root)" \
+    && cp -a /usr/lib/efi/*/*/EFI /boot/efi/ \
+    && DRACUT_NO_XATTR=1 dracut --stdlog 1 \
+      --add "dmsquash-live dmsquash-live-autooverlay" \
+      --force --zstd --reproducible --no-hostonly \
+      "/usr/lib/modules/${k}/initramfs.img" "${k}"
+
+RUN cat > /usr/lib/image-builder/bootc/iso.yaml <<'EOF'
+label: "ChickenOS"
+
+grub2:
+  timeout: 5
+  entries:
+    - name: "ChickenOS"
+      linux: "/images/pxeboot/vmlinuz root=live:CDLABEL=ChickenOS rd.live.image selinux=0 rhgb quiet"
+      initrd: "/images/pxeboot/initrd.img"
+EOF
+
+RUN systemctl mask bootloader-update.service \
+    && mkdir -p /usr/local/sbin
+
+RUN --mount=type=tmpfs,target=/run --network=none bootc container lint --fatal-warnings
+

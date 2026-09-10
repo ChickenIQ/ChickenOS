@@ -1,0 +1,14 @@
+FROM localhost/chickenos:base
+
+RUN cat > /usr/lib/sysusers.d/chickenos.conf <<'EOF'
+u user 1000 - /home/user /bin/bash
+m user wheel
+EOF
+
+RUN cat > /usr/lib/tmpfiles.d/chickenos.conf <<'EOF'
+d /var/home/user 0700 user user -
+EOF
+
+RUN systemd-sysusers && echo 'user:user' | chpasswd
+
+RUN --mount=type=tmpfs,target=/run --network=none bootc container lint --fatal-warnings

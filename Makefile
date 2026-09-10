@@ -1,0 +1,87 @@
+BUILDER := ghcr.io/osbuild/image-builder:sha-218217cd10eaa88c91e082ce506f2412d288b22c
+
+IMAGE := localhost/chickenos
+IMAGE_BASE := $(IMAGE):base
+IMAGE_DISK := $(IMAGE):disk
+IMAGE_ISO := $(IMAGE):iso
+
+OUTPUT := out
+CACHE := $(OUTPUT)/cache
+
+.PHONY: \
+	vm-disk-build \
+	vm-iso-build \
+	image-disk \
+	image-iso \
+	vm-disk \
+	vm-iso \
+	image \
+	shell \
+	disk \
+	iso
+
+define run_builder
+trap 'sudo podman kill chickenos-builder >/dev/null 2>&1 || true' INT TERM; \
+sudo podman run --rm --name chickenos-builder --privileged \
+	-v /var/lib/containers/storage:/var/lib/containers/storage \
+	-v "$(CURDIR)/$(CACHE):/var/cache/image-builder/store" \
+	-v "$(CURDIR)/$(CACHE):/output" \
+	$(BUILDER) build
+endef
+
+define run_vm
+qemu-system-x86_64 \
+	-enable-kvm \
+	-cpu host \
+	-smp 8 \
+	-m 8G
+endef
+
+
+image:
+	sudo podman build -f Containerfile -t $(IMAGE_BASE) .
+
+image-disk: image
+	sudo podman build -f Containerfile.disk -t $(IMAGE_DISK) .
+
+image-iso: image-disk
+	sudo podman build -f Containerfile.iso -t $(IMAGE_ISO) .
+
+shell: image-disk
+	sudo podman run --rm -it $(IMAGE_DISK) bash
+
+disk: image-disk
+	mkdir -p $(CACHE)
+	@$(run_builder) \
+		--bootc-ref $(IMAGE_DISK) \
+		--bootc-default-fs ext4 \
+		--output-name ChickenOS \
+		qcow2
+	sudo mv $(CACHE)/bootc-*/ChickenOS.qcow2 $(OUTPUT)/ChickenOS.qcow2
+	sudo rm -rf $(CACHE)/bootc-*
+	sudo chown "$$USER" $(OUTPUT)/ChickenOS.qcow2
+
+iso: image-iso
+	mkdir -p $(CACHE)
+	@$(run_builder) \
+		--bootc-ref $(IMAGE_ISO) \
+		--bootc-default-fs ext4 \
+		bootc-generic-iso
+	sudo mv $(CACHE)/bootc-*/bootc-*.iso $(OUTPUT)/ChickenOS.iso
+	sudo rm -rf $(CACHE)/bootc-*
+	sudo chown "$$USER" $(OUTPUT)/ChickenOS.iso
+
+vm-disk:
+	@$(run_vm) \
+		-drive file=$(OUTPUT)/ChickenOS.qcow2,format=qcow2,if=virtio
+
+vm-iso:
+	@$(run_vm) \
+		-cdrom $(OUTPUT)/ChickenOS.iso \
+		-boot d
+
+vm-disk-build: disk
+	$(MAKE) vm-disk
+
+vm-iso-build: iso
+	$(MAKE) vm-iso
