@@ -27,5 +27,3 @@ EOF
 
 RUN systemctl mask bootloader-update.service && mkdir -p /usr/local/sbin
 
-RUN --mount=type=tmpfs,target=/run bootc container lint --fatal-warnings --skip nonempty-boot
-

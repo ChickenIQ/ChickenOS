@@ -1,6 +1,7 @@
 BUILDER := ghcr.io/osbuild/image-builder:sha-218217cd10eaa88c91e082ce506f2412d288b22c
 
 IMAGE := localhost/chickenos
+IMAGE_NESTED := $(IMAGE):nested
 IMAGE_BASE := $(IMAGE):base
 IMAGE_DISK := $(IMAGE):disk
 IMAGE_ISO := $(IMAGE):iso
@@ -11,6 +12,7 @@ CACHE := $(OUTPUT)/cache
 .PHONY: \
 	vm-disk-build \
 	vm-iso-build \
+	image-nested \
 	image-disk \
 	image-iso \
 	vm-disk \
@@ -51,6 +53,9 @@ image-disk: image
 image-iso: image-disk
 	sudo podman build -f Containerfile.iso -t $(IMAGE_ISO) .
 
+image-nested: image-disk
+	sudo podman build -f Containerfile.nested -t $(IMAGE_NESTED) .
+
 shell: image-disk
 	sudo podman run --rm -it $(IMAGE_DISK) bash
 
@@ -63,7 +68,6 @@ disk: image-disk
 		qcow2
 		
 	sudo mv $(CACHE)/bootc-*/ChickenOS.qcow2 $(OUTPUT)/ChickenOS.qcow2
-	sudo rm -rf $(CACHE)/bootc-*
 	sudo chown "$$USER" $(OUTPUT)/ChickenOS.qcow2
 
 iso: image-iso
@@ -74,7 +78,6 @@ iso: image-iso
 		bootc-generic-iso
 
 	sudo mv $(CACHE)/bootc-*/bootc-*.iso $(OUTPUT)/ChickenOS.iso
-	sudo rm -rf $(CACHE)/bootc-*
 	sudo chown "$$USER" $(OUTPUT)/ChickenOS.iso
 
 vm-disk:
@@ -83,8 +86,7 @@ vm-disk:
 
 vm-iso:
 	@$(run_vm) \
-		-cdrom $(OUTPUT)/ChickenOS.iso \
-		-boot d
+		-cdrom $(OUTPUT)/ChickenOS.iso -boot d
 
 vm-disk-build: disk
 	$(MAKE) vm-disk
@@ -92,10 +94,10 @@ vm-disk-build: disk
 vm-iso-build: iso
 	$(MAKE) vm-iso
 
-nested: image-disk
-	sudo podman run --rm \
+nested: image-nested
+	sudo podman run --rm -it \
 		-e WAYLAND_DISPLAY="$$WAYLAND_DISPLAY" \
 		-v "$$XDG_RUNTIME_DIR:/host-runtime" \
 		--systemd=always --device=/dev/dri \
 		--cap-add=SYS_ADMIN --network=host \
-		$(IMAGE_DISK) /sbin/nested-init
+		$(IMAGE_NESTED)

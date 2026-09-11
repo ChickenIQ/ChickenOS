@@ -1,11 +1,13 @@
 [theme]
-community_palette = "Oxocarbon"
-source = "community"
-mode = "dark"
-templates.builtin_ids = [ 
+custom_palette = "chickenos"
+source = "custom"
+
+[theme.templates]
+enable_community_templates = false
+builtin_ids = [
   "kcolorscheme",
   "umbriel",
-  "kitty", 
-  "gtk3", 
+  "kitty",
+  "gtk3",
   "gtk4",
 ]

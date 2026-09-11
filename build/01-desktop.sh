@@ -12,18 +12,3 @@ EOF
 chmod +x /usr/bin/chickenos-session
 
 
-# Ensure defaults are included
-DIR="/usr/share/user-tmpfiles.d"
-mkdir -p "$DIR"
-
-cat > $DIR/chickenos.conf <<'EOF'
-d %h/.config/qt6ct 0755 - - -
-C %h/.config/qt6ct/qt6ct.conf - - - - /etc/skel/.config/qt6ct/qt6ct.conf
-
-d %h/.config/umbriel 0755 - - -
-C %h/.config/umbriel/config.toml - - - - /etc/skel/.config/umbriel/config.toml
-
-d %h/.config/noctalia 0755 - - -
-C %h/.config/noctalia/config.toml - - - - /etc/skel/.config/noctalia/config.toml
-EOF
-

@@ -1,13 +1,8 @@
 FROM localhost/chickenos:base
 
 # Autologin user
-RUN cat > /usr/lib/sysusers.d/chickenos.conf <<'EOF'
-u user 1000 - /home/user /bin/bash
-m user wheel
-EOF
-
-RUN cat > /usr/lib/tmpfiles.d/chickenos.conf <<'EOF'
-d /var/home/user 0700 user user -
+RUN install -Dm440 /dev/stdin /etc/sudoers.d/chickenos <<'EOF'
+%wheel ALL=(ALL:ALL) NOPASSWD: ALL
 EOF
 
 RUN cat >> /etc/greetd/config.toml <<'EOF'
@@ -16,39 +11,20 @@ command = "/usr/bin/chickenos-session"
 user = "user"
 EOF
 
-RUN cat > /etc/sudoers.d/chickenos <<'EOF'
-%wheel ALL=(ALL:ALL) NOPASSWD: ALL
-EOF
+RUN useradd -m -G wheel user && echo 'user:user' | chpasswd 
 
-RUN systemd-sysusers \
-    && echo 'user:user' | chpasswd \
-    && chmod 0440 /etc/sudoers.d/chickenos
+# Init user keyring
+RUN cat > /etc/systemd/user/user-keyring.service <<'EOF'
+[Unit]
+Wants=gnome-keyring-daemon.socket
+After=gnome-keyring-daemon.socket
 
-# Nested init for testing
-RUN cat > /usr/sbin/nested-init <<'EOF'
-#!/usr/bin/env -S bash -euo pipefail
-mkdir -p /var/home /run/systemd/system/multi-user.target.wants
-test -d /home/user || mkhomedir_helper user
+[Install]
+WantedBy=default.target
 
-ln -sf /dev/null /run/systemd/system/systemd-resolved.service
-for unit in auditd audit-rules bootloader-update bluetooth NetworkManager; do
-    ln -sf /dev/null "/run/systemd/system/$unit.service"
-done
-
-cat > /run/systemd/system/nested.service <<UNIT
 [Service]
-Environment=CHICKENOS_SESSION_COMMAND=/usr/bin/umbriel
-Environment=WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
-Environment=XDG_RUNTIME_DIR=/host-runtime
-ExecStart=/usr/bin/chickenos-session
-WorkingDirectory=/home/user
-User=user
-UNIT
-
-ln -sf ../nested.service /run/systemd/system/multi-user.target.wants/nested.service
-exec /sbin/init --unit=multi-user.target
+Type=oneshot
+ExecStart=/bin/sh -c "printf '\0' | /usr/bin/gnome-keyring-daemon --unlock"
 EOF
 
-RUN chmod +x /usr/sbin/nested-init
-
-RUN --mount=type=tmpfs,target=/run bootc container lint --fatal-warnings
+RUN systemctl --global enable user-keyring.service

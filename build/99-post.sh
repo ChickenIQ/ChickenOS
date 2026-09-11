@@ -1,5 +1,9 @@
 #!/usr/bin/env -S bash -euo pipefail
 
+# Cleanup Packages
+dnf autoremove -y
+dnf clean all
+
 # Cleanup
 rm -rf /usr/etc
 rm -rf /tmp/* || true
