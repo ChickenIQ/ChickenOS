@@ -96,8 +96,8 @@ vm-iso-build: iso
 
 nested: image-nested
 	sudo podman run --rm -it \
+		-v "$$XDG_RUNTIME_DIR/$$WAYLAND_DISPLAY:/run-host/$$WAYLAND_DISPLAY" \
 		-e WAYLAND_DISPLAY="$$WAYLAND_DISPLAY" \
-		-v "$$XDG_RUNTIME_DIR:/host-runtime" \
 		--systemd=always --device=/dev/dri \
 		--cap-add=SYS_ADMIN --network=host \
 		$(IMAGE_NESTED)

@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bash -euo pipefail
 
-dnf install -y umbriel-nightly noctalia qt6ct plasma-breeze-qt6 plasma-breeze-qt5 
+dnf install -y umbriel-nightly noctalia qt6ct adw-gtk3-theme plasma-breeze-qt6 plasma-breeze-qt5
 
 # Session wrapper 
 cat > /usr/bin/chickenos-session <<'EOF'
