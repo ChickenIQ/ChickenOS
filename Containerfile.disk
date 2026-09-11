@@ -1,5 +1,6 @@
 FROM localhost/chickenos:base
 
+# Autologin user
 RUN cat > /usr/lib/sysusers.d/chickenos.conf <<'EOF'
 u user 1000 - /home/user /bin/bash
 m user wheel
@@ -9,6 +10,45 @@ RUN cat > /usr/lib/tmpfiles.d/chickenos.conf <<'EOF'
 d /var/home/user 0700 user user -
 EOF
 
-RUN systemd-sysusers && echo 'user:user' | chpasswd
+RUN cat >> /etc/greetd/config.toml <<'EOF'
+[initial_session]
+command = "/usr/bin/chickenos-session"
+user = "user"
+EOF
+
+RUN cat > /etc/sudoers.d/chickenos <<'EOF'
+%wheel ALL=(ALL:ALL) NOPASSWD: ALL
+EOF
+
+RUN systemd-sysusers \
+    && echo 'user:user' | chpasswd \
+    && chmod 0440 /etc/sudoers.d/chickenos
+
+# Nested init for testing
+RUN cat > /usr/sbin/nested-init <<'EOF'
+#!/usr/bin/env -S bash -euo pipefail
+mkdir -p /var/home /run/systemd/system/multi-user.target.wants
+test -d /home/user || mkhomedir_helper user
+
+ln -sf /dev/null /run/systemd/system/systemd-resolved.service
+for unit in auditd audit-rules bootloader-update bluetooth NetworkManager; do
+    ln -sf /dev/null "/run/systemd/system/$unit.service"
+done
+
+cat > /run/systemd/system/nested.service <<UNIT
+[Service]
+Environment=CHICKENOS_SESSION_COMMAND=/usr/bin/umbriel
+Environment=WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+Environment=XDG_RUNTIME_DIR=/host-runtime
+ExecStart=/usr/bin/chickenos-session
+WorkingDirectory=/home/user
+User=user
+UNIT
+
+ln -sf ../nested.service /run/systemd/system/multi-user.target.wants/nested.service
+exec /sbin/init --unit=multi-user.target
+EOF
+
+RUN chmod +x /usr/sbin/nested-init
 
 RUN --mount=type=tmpfs,target=/run --network=none bootc container lint --fatal-warnings

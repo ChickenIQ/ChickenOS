@@ -1,3 +1,16 @@
-[shell.screenshot]
-save_to_file = false
-show_cursor = false
+[include]
+files = [
+  "./widgets.toml",
+  "./theme.toml",
+  "./shell.toml",
+  "./bar.toml",
+]
+
+[audio]
+enable_overdrive = true
+
+[brightness]
+enable_ddcutil = true
+
+[control_center]
+sidebar = "full"

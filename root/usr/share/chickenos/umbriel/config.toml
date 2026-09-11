@@ -1,2 +1,16 @@
+[include]
+files = [
+  "./appearance.toml",
+  "./keybinds.toml",
+  "./layout.toml",
+  "./rules.toml",
+]
+
 [general]
 autostart = ["noctalia"]
+show_cheatsheet = false
+focus_on_activate = true
+
+[input]
+middle_click_paste = false
+mouse.accel_profile = "flat"

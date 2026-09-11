@@ -1,0 +1,11 @@
+[theme]
+community_palette = "Oxocarbon"
+source = "community"
+mode = "dark"
+templates.builtin_ids = [ 
+  "kcolorscheme",
+  "umbriel",
+  "kitty", 
+  "gtk3", 
+  "gtk4",
+]

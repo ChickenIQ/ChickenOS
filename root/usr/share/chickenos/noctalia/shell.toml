@@ -1,0 +1,8 @@
+[shell]
+panel.open_near_click_control_center = true
+clipboard_confirm_clear_history = false
+screenshot.save_to_file = false
+clipboard_auto_paste = "off"
+setup_wizard_enabled = false
+font_family = "DejaVu Sans"
+polkit_agent = true

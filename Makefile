@@ -15,6 +15,7 @@ CACHE := $(OUTPUT)/cache
 	image-iso \
 	vm-disk \
 	vm-iso \
+	nested \
 	image \
 	shell \
 	disk \
@@ -31,10 +32,13 @@ endef
 
 define run_vm
 qemu-system-x86_64 \
+	-device virtio-vga,xres=1920,yres=1080 \
+	-audio driver=pipewire,model=hda \
+	-display sdl \
 	-enable-kvm \
 	-cpu host \
 	-smp 8 \
-	-m 8G
+	-m 8G 
 endef
 
 
@@ -57,6 +61,7 @@ disk: image-disk
 		--bootc-default-fs ext4 \
 		--output-name ChickenOS \
 		qcow2
+		
 	sudo mv $(CACHE)/bootc-*/ChickenOS.qcow2 $(OUTPUT)/ChickenOS.qcow2
 	sudo rm -rf $(CACHE)/bootc-*
 	sudo chown "$$USER" $(OUTPUT)/ChickenOS.qcow2
@@ -67,6 +72,7 @@ iso: image-iso
 		--bootc-ref $(IMAGE_ISO) \
 		--bootc-default-fs ext4 \
 		bootc-generic-iso
+
 	sudo mv $(CACHE)/bootc-*/bootc-*.iso $(OUTPUT)/ChickenOS.iso
 	sudo rm -rf $(CACHE)/bootc-*
 	sudo chown "$$USER" $(OUTPUT)/ChickenOS.iso
@@ -85,3 +91,11 @@ vm-disk-build: disk
 
 vm-iso-build: iso
 	$(MAKE) vm-iso
+
+nested: image-disk
+	sudo podman run --rm \
+		-e WAYLAND_DISPLAY="$$WAYLAND_DISPLAY" \
+		-v "$$XDG_RUNTIME_DIR:/host-runtime" \
+		--systemd=always --device=/dev/dri \
+		--cap-add=SYS_ADMIN --network=host \
+		$(IMAGE_DISK) /sbin/nested-init

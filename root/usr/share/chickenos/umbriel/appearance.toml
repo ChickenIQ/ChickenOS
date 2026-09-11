@@ -1,0 +1,16 @@
+[appearance]
+corner_radius = 5
+
+[animation]
+duration_ms = 300
+curve = "smoothSpring"
+beziers.smoothSpring = [0.327, 0.688, 0.114, 1.0]
+
+[animation.windows_in]
+scale = 0.5
+duration_ms = 200
+curve = "ease-out-expo"
+
+[animation.windows_out]
+duration_ms = 200
+curve = "ease-out-quad"

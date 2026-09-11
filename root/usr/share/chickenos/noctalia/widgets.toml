@@ -1,0 +1,5 @@
+[widget]
+workspaces.hide_when_empty = true
+workspaces.show_labels = false
+volume.show_label = false
+network.show_label = false

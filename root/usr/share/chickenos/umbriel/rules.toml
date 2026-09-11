@@ -1,0 +1,30 @@
+# Maximize Single Windows
+[[window_rule]]
+default_maximize = true
+match.is_alone = true
+
+# Games should not start floating
+[[window_rule]]
+default_floating = false
+match.app_id = "^steam_app_[0-9]+$"
+
+[[window_rule]]
+default_floating = false
+match.content_type = "game"
+
+# These do not scale down well, so spawn them maximized
+[[window_rule]]
+default_maximize = true
+match.app_id = "^(discord|steam)$"
+
+# Notifications Toasts should be in bottom right corner
+[[window_rule]]
+default_pinned = true
+default_focused = false
+match.title = "^notificationtoasts_.+_desktop"
+default_position = { x = 0, y = 0, anchor = "bottom_right" }
+
+# Floating screen share picker
+[[window_rule]]
+default_floating = true
+match.app_id = "^dev.noctalia.UmbrielSharePicker$"

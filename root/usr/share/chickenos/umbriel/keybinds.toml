@@ -1,0 +1,58 @@
+[keybinds]
+# Apps
+"Mod+Slash" = "cheatsheet-toggle"
+"Mod+Return" = "spawn:kitty"
+"Mod+E" = "spawn:dolphin"
+"Mod+W" = "spawn:helium"
+
+# Windows
+"Mod+Ctrl+WheelUp" = "window-move-to-workspace-previous"
+"Mod+Ctrl+WheelDown" = "window-move-to-workspace-next"
+
+"Mod+Shift+Up" = "window-move-to-workspace-previous"
+"Mod+Shift+Down" = "window-move-to-workspace-next"
+
+"Mod+Bracketright" = "window-modify-width:0.1"
+"Mod+Bracketleft" = "window-modify-width:-0.1"
+
+"Mod+Shift+F" = "window-toggle-fullscreen"
+"Mod+Ctrl+F" = "window-toggle-floating"
+"Mod+F" = "window-toggle-maximize"
+
+"Alt+Shift+Tab" = "window-focus-previous"
+"Alt+Tab" = "window-focus-next"
+
+"Mod+R" = "window-cycle-width"
+"Mod+Q" = "window-close"
+
+# Navigation
+"Mod+Tab" = { action = "overview-toggle", repeat = false }
+
+"Mod+Left" = "window-focus-previous"
+"Mod+Right" = "window-focus-next"
+"Mod+Up" = "workspace-previous"
+"Mod+Down" = "workspace-next"
+
+"Mod+Shift+WheelDown" = "workspace-next"
+"Mod+Shift+WheelUp" = "workspace-previous"
+
+"Mod+Shift+Right" = "column-move-right"
+"Mod+Shift+Left" = "column-move-left"
+
+# Noctalia
+"Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
+"Mod+V" = "spawn:noctalia msg panel-toggle clipboard"
+"Mod+L" = "spawn:noctalia msg session lock"
+
+"Mod+Shift+S" = "spawn:noctalia msg screenshot-region"
+Print = "spawn:noctalia msg screenshot-region"
+
+XF86AudioLowerVolume = "spawn:noctalia msg volume-down"
+XF86AudioRaiseVolume = "spawn:noctalia msg volume-up"
+XF86AudioMute = "spawn:noctalia msg volume-mute"
+XF86AudioMicMute = "spawn:noctalia msg mic-mute"
+
+XF86AudioPrev = "spawn:noctalia msg media previous"
+XF86AudioPlay = "spawn:noctalia msg media toggle"
+XF86AudioNext = "spawn:noctalia msg media next"
+XF86AudioStop = "spawn:noctalia msg media stop"

@@ -1,0 +1,11 @@
+[bar.default]
+end = ["tray", "volume", "network", "control-center"]
+start = ["launcher", "workspaces"]
+dead_zone.actions.right = "none"
+widget_spacing = 10
+margin_edge = 5
+margin_ends = 5
+thickness = 40
+capsule = true
+padding = 10
+scale = 1.05
