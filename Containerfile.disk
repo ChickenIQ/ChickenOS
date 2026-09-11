@@ -51,4 +51,4 @@ EOF
 
 RUN chmod +x /usr/sbin/nested-init
 
-RUN --mount=type=tmpfs,target=/run --network=none bootc container lint --fatal-warnings
+RUN --mount=type=tmpfs,target=/run bootc container lint --fatal-warnings

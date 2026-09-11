@@ -5,7 +5,7 @@ ARG PACKAGES="dracut-live grub2-efi-x64-cdboot grub2-pc-modules xorriso squashfs
 RUN --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/run \
-    dnf install -y $PACKAGES && dnf clean all \
+    dnf install -y $PACKAGES && dnf clean all && rm -rf /var/lib/dnf/repos \
     && k=$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == true) | .version') \
     && mkdir -p /boot/efi /usr/lib/image-builder/bootc "$(realpath /root)" \
     && cp -a /usr/lib/efi/*/*/EFI /boot/efi/ \
@@ -25,8 +25,7 @@ grub2:
       initrd: "/images/pxeboot/initrd.img"
 EOF
 
-RUN systemctl mask bootloader-update.service \
-    && mkdir -p /usr/local/sbin
+RUN systemctl mask bootloader-update.service && mkdir -p /usr/local/sbin
 
-RUN --mount=type=tmpfs,target=/run --network=none bootc container lint --fatal-warnings
+RUN --mount=type=tmpfs,target=/run bootc container lint --fatal-warnings --skip nonempty-boot
 

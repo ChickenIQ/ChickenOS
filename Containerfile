@@ -20,4 +20,4 @@ RUN sys=/usr/share/chickenos skel=/etc/skel/.config; \
         noctalia config validate "$root/noctalia/config.toml"; \
     done
 
-RUN --mount=type=tmpfs,target=/run --network=none bootc container lint --fatal-warnings
+RUN --mount=type=tmpfs,target=/run bootc container lint --fatal-warnings
