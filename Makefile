@@ -1,34 +1,26 @@
 BUILDER := ghcr.io/osbuild/image-builder:sha-218217cd10eaa88c91e082ce506f2412d288b22c
 
 IMAGE := localhost/chickenos
-IMAGE_NESTED := $(IMAGE):nested
 IMAGE_BASE := $(IMAGE):base
-IMAGE_DISK := $(IMAGE):disk
-IMAGE_ISO := $(IMAGE):iso
+IMAGE_LIVE := $(IMAGE):live
 
 OUTPUT := out
 CACHE := $(OUTPUT)/cache
 
-DISK := $(OUTPUT)/ChickenOS.raw
-DISK_SIZE := 32G
+VM_DISK := $(OUTPUT)/ChickenOS.raw
+VM_DISK_SIZE := 32G
 
 .PHONY: \
-	vm-disk-build \
-	vm-iso-build \
-	image-nested \
-	image-disk \
-	image-iso \
-	vm-disk \
-	vm-iso \
-	nested \
+	image-live \
+	image-vm \
 	image \
 	shell \
-	disk \
-	iso
+	iso \
+	vm \
+	vm-build
 
 define run_builder
-trap 'sudo podman kill chickenos-builder >/dev/null 2>&1 || true' INT TERM; \
-sudo podman run --rm --name chickenos-builder --privileged \
+sudo podman run --rm --privileged \
 	-v /var/lib/containers/storage:/var/lib/containers/storage \
 	-v "$(CURDIR)/$(CACHE):/var/cache/image-builder/store" \
 	-v "$(CURDIR)/$(CACHE):/output" \
@@ -46,33 +38,37 @@ qemu-system-x86_64 \
 	-m 8G
 endef
 
-
 image:
 	sudo podman build -f Containerfile -t $(IMAGE_BASE) .
 
-image-disk: image
-	sudo podman build -f Containerfile.disk -t $(IMAGE_DISK) .
+image-live: image
+	sudo podman build -f Containerfile.live -t $(IMAGE_LIVE) .
 
-image-iso: image-disk
-	sudo podman build -f Containerfile.iso -t $(IMAGE_ISO) .
+image-vm: image
+	sudo podman build -f Containerfile.live -t $(IMAGE_LIVE) --build-arg VM=1 .
 
-image-nested: image-disk
-	sudo podman build -f Containerfile.nested -t $(IMAGE_NESTED) .
+shell: image
+	sudo podman run --rm -it $(IMAGE_BASE) bash
 
-shell: image-disk
-	sudo podman run --rm -it $(IMAGE_DISK) bash
+iso: image-live
+	mkdir -p $(CACHE)
+	@$(run_builder) --bootc-ref $(IMAGE_LIVE) --bootc-default-fs ext4 bootc-generic-iso
+	sudo mv $(CACHE)/bootc-*/bootc-*.iso $(OUTPUT)/ChickenOS.iso
+	sudo chown "$$USER" $(OUTPUT)/ChickenOS.iso
 
-disk: image-disk
+vm:
+	@$(run_vm) -drive file=$(VM_DISK),format=raw,if=virtio
+
+vm-build: image-vm
 	mkdir -p $(OUTPUT)
-	truncate -s $(DISK_SIZE) $(DISK)
+	truncate -s $(VM_DISK_SIZE) $(VM_DISK)
 
 	sudo podman run --rm --privileged \
-		--pid=host \
 		-e PATH="/run/current-system/sw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-		-v /dev:/dev \
 		-v /var/lib/containers:/var/lib/containers \
 		-v "$(CURDIR)/$(OUTPUT):/out" \
-		$(IMAGE_DISK) \
+		-v /dev:/dev --pid=host \
+		$(IMAGE_LIVE) \
 		bootc install to-disk \
 			--filesystem=ext4 \
 			--generic-image \
@@ -80,34 +76,4 @@ disk: image-disk
 			--wipe \
 			/out/ChickenOS.raw
 
-iso: image-iso
-	mkdir -p $(CACHE)
-	@$(run_builder) \
-		--bootc-ref $(IMAGE_ISO) \
-		--bootc-default-fs ext4 \
-		bootc-generic-iso
-
-	sudo mv $(CACHE)/bootc-*/bootc-*.iso $(OUTPUT)/ChickenOS.iso
-	sudo chown "$$USER" $(OUTPUT)/ChickenOS.iso
-
-vm-disk:
-	@$(run_vm) \
-		-drive file=$(DISK),format=raw,if=virtio
-
-vm-iso:
-	@$(run_vm) \
-		-cdrom $(OUTPUT)/ChickenOS.iso -boot d
-
-vm-disk-build: disk
-	$(MAKE) vm-disk
-
-vm-iso-build: iso
-	$(MAKE) vm-iso
-
-nested: image-nested
-	sudo podman run --rm -it \
-		-v "$$XDG_RUNTIME_DIR/$$WAYLAND_DISPLAY:/run-host/$$WAYLAND_DISPLAY" \
-		-e WAYLAND_DISPLAY="$$WAYLAND_DISPLAY" \
-		--systemd=always --device=/dev/dri \
-		--cap-add=SYS_ADMIN --network=host \
-		$(IMAGE_NESTED)
+	$(MAKE) vm

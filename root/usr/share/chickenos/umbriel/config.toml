@@ -7,6 +7,7 @@ files = [
 ]
 
 [general]
+mod_key = "SUPER"
 autostart = ["noctalia"]
 show_cheatsheet = false
 focus_on_activate = true
