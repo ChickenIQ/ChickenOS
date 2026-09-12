@@ -9,6 +9,9 @@ IMAGE_ISO := $(IMAGE):iso
 OUTPUT := out
 CACHE := $(OUTPUT)/cache
 
+DISK := $(OUTPUT)/ChickenOS.raw
+DISK_SIZE := 32G
+
 .PHONY: \
 	vm-disk-build \
 	vm-iso-build \
@@ -40,7 +43,7 @@ qemu-system-x86_64 \
 	-enable-kvm \
 	-cpu host \
 	-smp 8 \
-	-m 8G 
+	-m 8G
 endef
 
 
@@ -60,15 +63,22 @@ shell: image-disk
 	sudo podman run --rm -it $(IMAGE_DISK) bash
 
 disk: image-disk
-	mkdir -p $(CACHE)
-	@$(run_builder) \
-		--bootc-ref $(IMAGE_DISK) \
-		--bootc-default-fs ext4 \
-		--output-name ChickenOS \
-		qcow2
-		
-	sudo mv $(CACHE)/bootc-*/ChickenOS.qcow2 $(OUTPUT)/ChickenOS.qcow2
-	sudo chown "$$USER" $(OUTPUT)/ChickenOS.qcow2
+	mkdir -p $(OUTPUT)
+	truncate -s $(DISK_SIZE) $(DISK)
+
+	sudo podman run --rm --privileged \
+		--pid=host \
+		-e PATH="/run/current-system/sw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+		-v /dev:/dev \
+		-v /var/lib/containers:/var/lib/containers \
+		-v "$(CURDIR)/$(OUTPUT):/out" \
+		$(IMAGE_DISK) \
+		bootc install to-disk \
+			--filesystem=ext4 \
+			--generic-image \
+			--via-loopback \
+			--wipe \
+			/out/ChickenOS.raw
 
 iso: image-iso
 	mkdir -p $(CACHE)
@@ -82,7 +92,7 @@ iso: image-iso
 
 vm-disk:
 	@$(run_vm) \
-		-drive file=$(OUTPUT)/ChickenOS.qcow2,format=qcow2,if=virtio
+		-drive file=$(DISK),format=raw,if=virtio
 
 vm-iso:
 	@$(run_vm) \

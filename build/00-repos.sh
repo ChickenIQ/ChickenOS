@@ -6,6 +6,9 @@ dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-
 dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 dnf install -y dnf5-plugins
 
-dnf config-manager setopt fedora-cisco-openh264.enabled=1
+dnf copr enable -y ublue-os/packages
 dnf copr enable -y atim/starship
 dnf copr enable -y imput/helium
+
+dnf config-manager setopt 'copr:copr.fedorainfracloud.org:ublue-os:packages.includepkgs=bazaar'
+dnf config-manager setopt fedora-cisco-openh264.enabled=1

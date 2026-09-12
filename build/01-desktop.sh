@@ -11,4 +11,10 @@ EOF
 
 chmod +x /usr/bin/chickenos-session
 
-
+# Create portal config for Umbriel
+cat > /usr/share/xdg-desktop-portal/umbriel-portals.conf <<'EOF'
+[preferred]
+default=gtk
+org.freedesktop.impl.portal.ScreenCast=umbriel
+org.freedesktop.impl.portal.Screenshot=umbriel
+EOF
