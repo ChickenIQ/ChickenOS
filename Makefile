@@ -1,3 +1,4 @@
+SECUREBOOT_SECRET = $(if $(wildcard $(SECUREBOOT_KEY)),--secret=id=secureboot$(comma)src="$(SECUREBOOT_KEY)")
 BUILDER := ghcr.io/osbuild/image-builder:sha-218217cd10eaa88c91e082ce506f2412d288b22c
 
 IMAGE := localhost/chickenos
@@ -6,6 +7,7 @@ IMAGE_LIVE := $(IMAGE):live
 
 OUTPUT := out
 CACHE := $(OUTPUT)/cache
+comma := ,
 
 VM_DISK := $(OUTPUT)/ChickenOS.raw
 VM_DISK_SIZE := 32G
@@ -39,7 +41,7 @@ qemu-system-x86_64 \
 endef
 
 image:
-	sudo podman build -f Containerfile -t $(IMAGE_BASE) .
+	sudo podman build $(SECUREBOOT_SECRET) -f Containerfile -t $(IMAGE_BASE) .
 
 image-live: image
 	sudo podman build -f Containerfile.live -t $(IMAGE_LIVE) .

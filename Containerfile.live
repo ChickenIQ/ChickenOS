@@ -30,39 +30,48 @@ EOF
 
 RUN systemctl --global enable user-keyring.service
 
-
 # Set mod_key to ALT for VM images
 RUN [ "$VM" != "1" ] || sed -i 's/^mod_key = .*/mod_key = "ALT"/' /usr/share/chickenos/umbriel/config.toml
 
-# Install packages for building ISO images
-ARG PACKAGES="dracut-live grub2-efi-x64-cdboot grub2-pc-modules xorriso squashfs-tools isomd5sum jq"
-
-RUN --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
-    --mount=type=tmpfs,dst=/run \
-    [ "$VM" = "1" ] && exit 0; \
-    dnf install -y $PACKAGES && dnf clean all && rm -rf /var/lib/dnf/repos \
-    && k=$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == true) | .version') \
-    && mkdir -p /boot/efi /usr/lib/image-builder/bootc "$(realpath /root)" \
-    && cp -a /usr/lib/efi/*/*/EFI /boot/efi/ \
-    && DRACUT_NO_XATTR=1 dracut --stdlog 1 \
-      --add "dmsquash-live dmsquash-live-autooverlay" \
-      --force --zstd --reproducible --no-hostonly \
-      "/usr/lib/modules/${k}/initramfs.img" "${k}"
-
-RUN <<'EOF'
+# ISO Setup
+RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log --mount=type=tmpfs,dst=/run <<'EOF'
 [ "$VM" = "1" ] && exit 0
+set -e
 
-cat > /usr/lib/image-builder/bootc/iso.yaml <<'YAML'
+PACKAGES="dracut-live grub2-efi-x64-cdboot grub2-pc-modules xorriso squashfs-tools isomd5sum jq mokutil"
+dnf install -y $PACKAGES && dnf clean all && rm -rf /var/lib/dnf/repos
+
+kver=$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == true) | .version')
+mkdir -p /boot/efi /usr/lib/image-builder/bootc "$(realpath /root)"
+cp -a /usr/lib/efi/*/*/EFI /boot/efi/
+
+DRACUT_NO_XATTR=1 dracut --stdlog 1 --force --zstd --reproducible --no-hostonly \
+  --add "dmsquash-live dmsquash-live-autooverlay" \
+  "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
+
+cat > /usr/lib/systemd/system/chickenos-secureboot.service <<'UNIT'
+[Service]
+Environment=KEY=/usr/share/chickenos/secureboot.der
+Environment=PASS=chickenos
+ExecStart=/bin/sh -c 'printf "$PASS\\n$PASS\\n" | mokutil --import "$KEY"'
+ExecStartPost=systemctl reboot
+UNIT
+
+PARAMS="/images/pxeboot/vmlinuz root=live:CDLABEL=ChickenOS rd.live.image selinux=0"
+cat > /usr/lib/image-builder/bootc/iso.yaml <<YAML
 label: "ChickenOS"
+
 grub2:
-  timeout: 5
+  timeout: 30
   entries:
-    - name: "ChickenOS"
-      linux: "/images/pxeboot/vmlinuz root=live:CDLABEL=ChickenOS rd.live.image selinux=0 rhgb quiet"
+    - name: "Start ChickenOS"
+      linux: "$PARAMS rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1"
+      initrd: "/images/pxeboot/initrd.img"
+
+    - name: "Setup Secureboot"
+      linux: "$PARAMS systemd.unit=chickenos-secureboot.service"
       initrd: "/images/pxeboot/initrd.img"
 YAML
 EOF
 
 RUN systemctl mask bootloader-update.service && mkdir -p /usr/local/sbin
-

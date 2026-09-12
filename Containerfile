@@ -4,6 +4,8 @@ COPY build /
 FROM quay.io/fedora/fedora-bootc:44
 
 RUN --mount=type=bind,from=build,source=/,target=/build \
+    --mount=type=tmpfs,target=/etc/pki/akmods \
+    --mount=type=secret,id=secureboot \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/run \
