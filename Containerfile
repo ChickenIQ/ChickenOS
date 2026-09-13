@@ -16,7 +16,7 @@ COPY ctx/config/ /ctx/config/
 FROM ctx AS live-ctx
 COPY ctx/live/ /ctx/live/
 
-FROM quay.io/fedora-ostree-desktops/base-atomic:44 AS base
+FROM quay.io/fedora/fedora-bootc:44 AS base
 
 # Build base layer
 RUN --mount=type=bind,from=base-ctx,source=/ctx,target=/ctx \
