@@ -9,6 +9,7 @@ EOF
 
 cat > /usr/lib/tmpfiles.d/chickenos-greeter.conf <<'EOF'
 d /var/lib/noctalia-greeter 0750 greeter greeter -
+
 d /var/lib/greetd/.config 0755 greetd greetd -
 d /var/lib/greetd/.config/systemd 0755 greetd greetd -
 d /var/lib/greetd/.config/systemd/user 0755 greetd greetd -

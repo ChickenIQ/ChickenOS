@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 
-# Add repos
-dnf install -y https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm 
-dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+# Setup dnf
 dnf install -y dnf5-plugins
+dnf config-manager setopt max_parallel_downloads=10
+
+
+# Add Terra Repos
+dnf config-manager addrepo --from-repofile=https://raw.githubusercontent.com/terrapkg/subatomic-repos/main/terra.repo
+dnf config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-nvidia.repo
+dnf install -y terra-release terra-release-extras terra-release-mesa
 
 
 # Enable COPR Repos

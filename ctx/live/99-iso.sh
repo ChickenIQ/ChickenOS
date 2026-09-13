@@ -12,10 +12,13 @@ kver=$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == tr
 mkdir -p /boot/efi /usr/lib/image-builder/bootc "$(realpath /root)"
 cp -a /usr/lib/efi/*/*/EFI /boot/efi/
 
-DRACUT_NO_XATTR=1 dracut --stdlog 1 --force --zstd --reproducible --no-hostonly \
+DRACUT_NO_XATTR=1 dracut --stdlog 1 \
+  --force --zstd --reproducible --no-hostonly \
   --add "dmsquash-live dmsquash-live-autooverlay" \
   "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
 
+
+# Add secureboot init target
 cat > /usr/lib/systemd/system/chickenos-secureboot.service <<'UNIT'
 [Service]
 Environment=KEY=/usr/share/chickenos/secureboot.der
@@ -34,10 +37,10 @@ grub2:
   timeout: 30
   entries:
     - name: "Start ChickenOS"
-      linux: "$PARAMS rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1"
+      linux: "$PARAMS"
       initrd: "/images/pxeboot/initrd.img"
 
     - name: "Setup Secureboot"
-      linux: "$PARAMS systemd.unit=chickenos-secureboot.service rd.driver.blacklist=nvidia modprobe.blacklist=nvidia"
+      linux: "$PARAMS systemd.unit=chickenos-secureboot.service"
       initrd: "/images/pxeboot/initrd.img"
 YAML

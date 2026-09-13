@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # Install Keys
 KEY=/run/secrets/secureboot CRT=/build/secureboot.der
 if [ "$VM" != "1" ] && { [ -f "$CRT" ] || [ -f "$KEY" ]; }; then
@@ -26,7 +25,3 @@ fi
 mkdir -p /out/usr/lib/bootc/kargs.d
 mkdir -p /out/usr/lib/modules
 
-
-# Prepare akmods
-dnf install -y akmods
-ln -sf /usr/bin/true /usr/bin/akmods-ostree-post
