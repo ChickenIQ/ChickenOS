@@ -1,5 +1,6 @@
-#!/usr/bin/env -S bash -euo pipefail
+#!/usr/bin/env bash
 
+# Create user tmpfiles for all skel entries
 DIR="/usr/share/user-tmpfiles.d"
 mkdir -p "$DIR"
 

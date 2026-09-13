@@ -1,46 +1,13 @@
-FROM localhost/chickenos:base
-ARG VM=0
+#!/usr/bin/env -S bash -euo pipefail
 
-# Autologin user
-RUN install -Dm440 /dev/stdin /etc/sudoers.d/chickenos <<'EOF'
-%wheel ALL=(ALL:ALL) NOPASSWD: ALL
-EOF
+[ "$ISO" = "1" ] || exit 0
 
-RUN cat >> /etc/greetd/config.toml <<'EOF'
-[initial_session]
-command = "/usr/bin/chickenos-session"
-user = "user"
-EOF
-
-RUN useradd -m -G wheel user && echo 'user:user' | chpasswd 
-
-# Init user keyring
-RUN cat > /etc/systemd/user/user-keyring.service <<'EOF'
-[Unit]
-Wants=gnome-keyring-daemon.socket
-After=gnome-keyring-daemon.socket
-
-[Install]
-WantedBy=default.target
-
-[Service]
-Type=oneshot
-ExecStart=/bin/sh -c "printf '\0' | /usr/bin/gnome-keyring-daemon --unlock"
-EOF
-
-RUN systemctl --global enable user-keyring.service
-
-# Set mod_key to ALT for VM images
-RUN [ "$VM" != "1" ] || sed -i 's/^mod_key = .*/mod_key = "ALT"/' /usr/share/chickenos/umbriel/config.toml
-
-# ISO Setup
-RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log --mount=type=tmpfs,dst=/run <<'EOF'
-[ "$VM" = "1" ] && exit 0
-set -e
-
+# Install dependencies
 PACKAGES="dracut-live grub2-efi-x64-cdboot grub2-pc-modules xorriso squashfs-tools isomd5sum jq mokutil"
 dnf install -y $PACKAGES && dnf clean all && rm -rf /var/lib/dnf/repos
 
+
+# Create the initramfs with required modules
 kver=$(kernel-install list --json pretty | jq -r '.[] | select(.has_kernel == true) | .version')
 mkdir -p /boot/efi /usr/lib/image-builder/bootc "$(realpath /root)"
 cp -a /usr/lib/efi/*/*/EFI /boot/efi/
@@ -57,6 +24,8 @@ ExecStart=/bin/sh -c 'printf "$PASS\\n$PASS\\n" | mokutil --import "$KEY"'
 ExecStartPost=systemctl reboot
 UNIT
 
+
+# Create grub config
 PARAMS="/images/pxeboot/vmlinuz root=live:CDLABEL=ChickenOS rd.live.image selinux=0"
 cat > /usr/lib/image-builder/bootc/iso.yaml <<YAML
 label: "ChickenOS"
@@ -69,9 +38,6 @@ grub2:
       initrd: "/images/pxeboot/initrd.img"
 
     - name: "Setup Secureboot"
-      linux: "$PARAMS systemd.unit=chickenos-secureboot.service"
+      linux: "$PARAMS systemd.unit=chickenos-secureboot.service rd.driver.blacklist=nvidia modprobe.blacklist=nvidia"
       initrd: "/images/pxeboot/initrd.img"
 YAML
-EOF
-
-RUN systemctl mask bootloader-update.service && mkdir -p /usr/local/sbin

@@ -1,6 +1,6 @@
-#!/usr/bin/env -S bash -euo pipefail
+#!/usr/bin/env bash
 
-# Greeter
+# Install Greeter
 dnf install -y greetd noctalia-greeter
 
 cat > /usr/lib/sysusers.d/chickenos-greeter.conf <<'EOF'
@@ -9,9 +9,14 @@ EOF
 
 cat > /usr/lib/tmpfiles.d/chickenos-greeter.conf <<'EOF'
 d /var/lib/noctalia-greeter 0750 greeter greeter -
+d /var/lib/greetd/.config 0755 greetd greetd -
+d /var/lib/greetd/.config/systemd 0755 greetd greetd -
+d /var/lib/greetd/.config/systemd/user 0755 greetd greetd -
+L /var/lib/greetd/.config/systemd/user/xdg-desktop-portal.service - - - - /dev/null
 EOF
 
 
+# Setup Desktop Session
 DIR="/etc/greetd"
 mkdir -p "$DIR"
 

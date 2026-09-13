@@ -1,6 +1,8 @@
-#!/usr/bin/env -S bash -euo pipefail
+#!/usr/bin/env bash
 
+# Desktop 
 dnf install -y umbriel-nightly noctalia qt6ct adw-gtk3-theme plasma-breeze-qt6 plasma-breeze-qt5
+
 
 # Session wrapper 
 cat > /usr/bin/chickenos-session <<'EOF'
@@ -10,6 +12,7 @@ exec "${CHICKENOS_SESSION_COMMAND:-/usr/bin/start-umbriel}" "$@"
 EOF
 
 chmod +x /usr/bin/chickenos-session
+
 
 # Create portal config for Umbriel
 cat > /usr/share/xdg-desktop-portal/umbriel-portals.conf <<'EOF'

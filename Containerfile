@@ -1,32 +1,86 @@
-FROM scratch AS build
-COPY build /
+FROM scratch AS ctx
+COPY ctx/build.sh ctx/post.sh /ctx/
 
-FROM quay.io/fedora/fedora-bootc:44
+FROM ctx AS base-ctx
+COPY ctx/base/ /ctx/base/
 
-RUN --mount=type=bind,from=build,source=/,target=/build \
+FROM ctx AS kmods-ctx
+COPY ctx/kmods/ /ctx/kmods/
+
+FROM ctx AS desktop-ctx
+COPY ctx/desktop/ /ctx/desktop/
+
+FROM ctx AS config-ctx
+COPY ctx/config/ /ctx/config/
+
+FROM ctx AS live-ctx
+COPY ctx/live/ /ctx/live/
+
+FROM quay.io/fedora-ostree-desktops/base-atomic:44 AS base
+
+# Build base layer
+RUN --mount=type=bind,from=base-ctx,source=/ctx,target=/ctx \
+    --mount=type=cache,dst=/var/cache \
+    --mount=type=tmpfs,dst=/var/log \
+    --mount=type=tmpfs,dst=/run \
+    bash -euo pipefail /ctx/build.sh base
+
+# Build kernel modules
+FROM base AS builder
+ARG VM=0
+
+RUN --mount=type=bind,from=kmods-ctx,source=/ctx,target=/ctx \
     --mount=type=tmpfs,target=/etc/pki/akmods \
     --mount=type=secret,id=secureboot \
     --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
+    --mount=type=tmpfs,dst=/var/log \
     --mount=type=tmpfs,dst=/run \
-    for sc in $(printf '%s\n' /build/*.sh | sort -V); do \
-        bash -euo pipefail "$sc" || exit 1; \
-    done
+    mkdir -p /out /rpms; \
+    [ "$VM" = "1" ] && exit 0; \
+    bash -euo pipefail /ctx/build.sh kmods
 
+# Install kernel modules
+FROM base AS core
+ARG VM=0
+
+COPY --from=builder /out/ /
+
+RUN --mount=type=bind,from=builder,source=/rpms,target=/rpms \
+    --mount=type=bind,from=ctx,source=/ctx,target=/ctx \
+    --mount=type=cache,dst=/var/cache \
+    --mount=type=tmpfs,dst=/var/log \
+    --mount=type=tmpfs,dst=/run \
+    [ "$VM" = "1" ] && exit 0; \
+    dnf install -y /rpms/*.rpm; \
+    bash -euo pipefail /ctx/post.sh
+
+# Build desktop layer
+FROM core AS desktop
+
+RUN --mount=type=bind,from=desktop-ctx,source=/ctx,target=/ctx \
+    --mount=type=cache,dst=/var/cache \
+    --mount=type=tmpfs,dst=/var/log \
+    --mount=type=tmpfs,dst=/run \
+    bash -euo pipefail /ctx/build.sh desktop
+
+# Build final layer
+FROM desktop AS config
 COPY root /
 
-# Pull Oxocarbon
-RUN mkdir -p /usr/share/chickenos/noctalia \
-    && curl -fsSL https://raw.githubusercontent.com/noctalia-dev/community-palettes/main/Oxocarbon/Oxocarbon.json \
-       -o /usr/share/chickenos/noctalia/theme.json
+RUN --mount=type=bind,from=config-ctx,source=/ctx,target=/ctx \
+    --mount=type=cache,dst=/var/cache \
+    --mount=type=tmpfs,dst=/var/log \
+    --mount=type=tmpfs,dst=/run \
+    bash -euo pipefail /ctx/build.sh config
 
-# Validate configuration files
-RUN sys=/usr/share/chickenos skel=/etc/skel/.config; \
-    export GSETTINGS_BACKEND=memory; \
-    for root in "$skel" "$sys"; do \
-        umbriel validate -c "$root/umbriel/config.toml"; \
-        noctalia config validate "$root/noctalia/config.toml"; \
-    done
+# Build live layer
+FROM config AS live
+ARG ISO=0
+ARG VM=0
 
-
-RUN --mount=type=tmpfs,target=/run bootc container lint --fatal-warnings
+RUN --mount=type=bind,from=live-ctx,source=/ctx,target=/ctx \
+    --mount=type=cache,dst=/var/cache \
+    --mount=type=tmpfs,dst=/var/log \
+    --mount=type=tmpfs,dst=/run \
+    [ "$VM" = "1" ] || [ "$ISO" = "1" ] || exit 0; \
+    bash -euo pipefail /ctx/build.sh live
